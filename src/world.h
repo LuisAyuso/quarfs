@@ -10,6 +10,10 @@ class World{
 
     public:
 
+    World():
+        rotTri(0.f), rotQuad(0.f)
+    {}
+
     bool update();
     void draw() const;
 };

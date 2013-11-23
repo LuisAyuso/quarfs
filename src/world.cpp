@@ -5,6 +5,9 @@
 #include<GL/glx.h>
 #include<GL/glu.h>
 
+#include "drawable_node.h"
+
+
 bool World::update(){
 
     rotTri += 0.2f;

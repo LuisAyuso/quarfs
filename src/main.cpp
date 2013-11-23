@@ -10,6 +10,7 @@
 
 
 #include "world.h"
+#include "joystick.h"
 
 void resizeGLScene(unsigned int width, unsigned int height) {
     if (height == 0)    /* Prevent A Divide By Zero If The Window Is Too Small */
@@ -68,7 +69,7 @@ int main(int argc, char *argv[]) {
 	cmap = XCreateColormap(display, root, vi->visual, AllocNone);
 
 	swa.colormap = cmap;
-	swa.event_mask = ExposureMask | KeyPressMask;
+	swa.event_mask = ExposureMask | KeyPressMask | ButtonPressMask | StructureNotifyMask;
 
 	win = XCreateWindow(display, root, 0, 0, 600, 480, 0, vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
 
@@ -92,6 +93,10 @@ int main(int argc, char *argv[]) {
     // create a world to draw
     World world;
 
+    // some interaction variables
+    Joystick* joy;
+    joy = new Joystick();
+
     // render loop
     bool running = true;
 	while(running) {
@@ -100,40 +105,37 @@ int main(int argc, char *argv[]) {
         while (XPending(display) > 0) {
             XNextEvent(display, &xev);
 
+            std::cout << "event " << xev.type << std::endl;
+
             if(xev.type == Expose) {
                 // expose is ignored, we are updating the screen anyway
                 break;
             }
 
-            // it seems that this event is not called when resize
-        //    if(xev.type == ConfigureNotify) {
-        //        // something changed in the window, lets consider what is it
-        //        if (width != xev.xconfigure.width || height != xev.xconfigure.height){
-        //            // looks like resize
-        //            width = xev.xconfigure.width;
-        //            height = xev.xconfigure.height;
-        //            resizeGLScene(width,height);
-        //        }
-        //    }
+            if(xev.type == ConfigureNotify) {
+                // something changed in the window, lets consider what is it
+                if (width != xev.xconfigure.width || height != xev.xconfigure.height){
+                    // looks like resize
+                    width = xev.xconfigure.width;
+                    height = xev.xconfigure.height;
+                    resizeGLScene(width,height);
+                }
+            }
 
             else if(xev.type == ClientMessage){
                 if (xev.xclient.data.l[0] == wmDeleteMessage)
-                running = false;
+                    running = false;
             }
 
             else if(xev.type == KeyPress ){
-                running = false;
+                //Vif (XLookupKeysym(&xev.xkey, 0) == XK_Escape)
+                //    running = false;
+                //if (XLookupKeysym(&xev.xkey, 0) == XK_Spacebar)
+                    
+                    std::cout << joy->get_num_buttons() << std::endl;
+                    std::cout << joy->get_num_axes() << std::endl;
+                    std::cout << joy->get_name() << std::endl;
             }
-        }
-
-        // question if the window has suffer resize
-        unsigned newW, newH;
-        XGetGeometry(display, win, &dummy, &x, &y, &newW, &newH, &border, &depth);
-        if (width != newW || height != newH){
-            // looks like resize
-            width = newW;
-            height = newH;
-            resizeGLScene(width,height);
         }
 
         // upodate scene
@@ -149,6 +151,8 @@ int main(int argc, char *argv[]) {
             glXSwapBuffers(display, win);
         }
 	}
+
+    if (joy) delete joy;
 
     glXMakeCurrent(display, None, NULL);
     glXDestroyContext(display, glc);
