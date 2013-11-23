@@ -92,14 +92,44 @@ int main(int argc, char *argv[]) {
     // create a world to draw
     World world;
 
+    // render loop
     bool running = true;
 	while(running) {
-        XNextEvent(display, &xev);
 
-        if(xev.type == Expose) {
-            XGetWindowAttributes(display, win, &gwa);
-            //glViewport(0, 0, gwa.width, gwa.height);
+        // attend first the window events
+        while (XPending(display) > 0) {
+            XNextEvent(display, &xev);
 
+            if(xev.type == Expose) {
+                // expose is ignored, we are updating the screen anyway
+                break;
+            }
+
+            if(xev.type == ConfigureNotify) {
+                    std::cout << "resize " << std::endl;
+                // something changed in the window, lets consider what is it
+                if (width != xev.xconfigure.width || height != xev.xconfigure.height){
+                    // looks like resize
+                    std::cout << "resize " << std::endl;
+                    
+                    width = xev.xconfigure.width;
+                    height = xev.xconfigure.height;
+                    resizeGLScene(width,height);
+                }
+            }
+
+            else if(xev.type == ClientMessage){
+                if (xev.xclient.data.l[0] == wmDeleteMessage)
+                running = false;
+            }
+
+            else if(xev.type == KeyPress ){
+                running = false;
+            }
+        }
+
+        // upodate scene
+        if (world.update()){
             // set camera position and projection
             
             // draw hud
@@ -108,17 +138,7 @@ int main(int argc, char *argv[]) {
             world.draw();
 
             // done
-            std::cout << "= DONE =" << std::endl;
             glXSwapBuffers(display, win);
-        }
-
-        else if(xev.type == ClientMessage){
-            if (xev.xclient.data.l[0] == wmDeleteMessage)
-               running = false;
-        }
-
-        else if(xev.type == KeyPress ){
-               running = false;
         }
 	}
 
