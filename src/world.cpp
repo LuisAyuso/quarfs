@@ -14,23 +14,6 @@ bool World::update(){
 }
 
 void World::draw() const{
-//    glClearColor(1.0, 1.0, 1.0, 1.0);
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//
-//    glMatrixMode(GL_PROJECTION);
-//    glLoadIdentity();
-//    glOrtho(-1., 1., -1., 1., 1., 20.);
-//
-//    glMatrixMode(GL_MODELVIEW);
-//    glLoadIdentity();
-//    gluLookAt(0., 0., 10., 0., 0., 0., 0., 1., 0.);
-//
-//    glBegin(GL_QUADS);
-//        glColor3f(1., 0., 0.); glVertex3f(-.75, -.75, 0.);
-//        glColor3f(0., 1., 0.); glVertex3f( .75, -.85, 0.);
-//        glColor3f(0., 0., 1.); glVertex3f( .75,  .75, 0.);
-//        glColor3f(1., 1., 0.); glVertex3f(-.75,  .75, 0.);
-//    glEnd();OB
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
@@ -111,7 +94,4 @@ void World::draw() const{
         glVertex3f(-1.0f, -1.0f, -1.0f);
         glVertex3f(-1.0f, -1.0f, 1.0f);
     glEnd();
-
-
-
 }

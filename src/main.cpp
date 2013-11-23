@@ -105,18 +105,16 @@ int main(int argc, char *argv[]) {
                 break;
             }
 
-            if(xev.type == ConfigureNotify) {
-                    std::cout << "resize " << std::endl;
-                // something changed in the window, lets consider what is it
-                if (width != xev.xconfigure.width || height != xev.xconfigure.height){
-                    // looks like resize
-                    std::cout << "resize " << std::endl;
-                    
-                    width = xev.xconfigure.width;
-                    height = xev.xconfigure.height;
-                    resizeGLScene(width,height);
-                }
-            }
+            // it seems that this event is not called when resize
+        //    if(xev.type == ConfigureNotify) {
+        //        // something changed in the window, lets consider what is it
+        //        if (width != xev.xconfigure.width || height != xev.xconfigure.height){
+        //            // looks like resize
+        //            width = xev.xconfigure.width;
+        //            height = xev.xconfigure.height;
+        //            resizeGLScene(width,height);
+        //        }
+        //    }
 
             else if(xev.type == ClientMessage){
                 if (xev.xclient.data.l[0] == wmDeleteMessage)
@@ -126,6 +124,16 @@ int main(int argc, char *argv[]) {
             else if(xev.type == KeyPress ){
                 running = false;
             }
+        }
+
+        // question if the window has suffer resize
+        unsigned newW, newH;
+        XGetGeometry(display, win, &dummy, &x, &y, &newW, &newH, &border, &depth);
+        if (width != newW || height != newH){
+            // looks like resize
+            width = newW;
+            height = newH;
+            resizeGLScene(width,height);
         }
 
         // upodate scene

@@ -1,8 +1,10 @@
 
 env=Environment(CPPPATH='src',
                 CPPDEFINES=[],
+                CXX='clang++',
                 LIBS=['X11','GLU','GL','Xext' ],
-                CCFLAGS = '--std=c++11') 
+                CCFLAGS = ['--std=c++11',
+                          '-fcolor-diagnostics'])
 
 
 # Notice the source files are referred to in the build dir
