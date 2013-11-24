@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
 
             // set camera position and projection
             glLoadIdentity();
-            gluLookAt(0, 10, -35, /* look from camera XYZ */ 
+            gluLookAt(0, 100, -100, /* look from camera XYZ */ 
                       0, 0, 0, /* look at the origin */ 
                       0, 1, 0); /* positive Y up vector */
             

@@ -6,24 +6,20 @@ NAVIGATION:
     - add navigation: joystick and/or mouse
     - think on interaction
 
-
 RENDER:
 =======
 
-    -- add Zbuffer, it shems that whe draw by order
-
-    - projected shadows
     - move all the gl instructions into vbos (map cubes into cordinates)
+    - projected shadows, much nicer 3d sensation (also moving sun... pretty cool)
     - two pass render, create a static map to enable interaction (hidden buffer)
     - nice shader vs textures? 
-
 
 MAP:
 ====
 
-    -- fix the mesh with the tree
     - octree algorithm
     - add more sofisticated map generation, 2 perlin passes + generative erosion
 
+    - map generation is a problem, research something nice
 
 

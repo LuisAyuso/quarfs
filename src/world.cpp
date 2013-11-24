@@ -5,13 +5,14 @@
 #include<GL/glx.h>
 #include<GL/glu.h>
 
+#include <math.h>
 
 DrawNode::DrawNode(float x, float y, float z)
 :   x(x), y(y), z(z)
 {}
 
 std::ostream& operator<<(std::ostream& out, const DrawNode& dn){
-    out << "DN[" << dn.x << "," << dn.y << "," << dn.z << "]";
+    out << "DN[" << dn.x << "," << dn.z << "," << dn.y << "]";
     return out;
 }
 
@@ -23,7 +24,7 @@ void DrawNode::draw ()const {
         glColor3f(159.0f/256.0f,182.0f/256.0f,205.0f/256.0f);
 
         /* top of cube */
-        glNormal3f(0.f, 1.f, 0.f);
+        glNormal3f(0.f,  1.f, 0.f);
         glVertex3f(1.0f, 1.0f, 0.0f);
         glVertex3f(0.0f, 1.0f, 0.0f);
         glVertex3f(0.0f, 1.0f, 1.0f);
@@ -85,48 +86,52 @@ TreeNode::TreeNode (int x, int y, int w, int h, unsigned level)
 
 void TreeNode::addElement (const DrawNode& elem){
 
+   // std::cout << "\nin node: " << *this << std::endl;
     assert( elem.x >= x);
     assert( elem.z >= y);
     assert( elem.x < x+w);
     assert( elem.z < y+h);
 
-   // if(leaf){
-   //     // if condition to split
-   //     if (elems.size() > 100){
-   //         int halfW = w/2;
-   //         int halfH = h/2;
-//
-// //           std::cout << "divide" << std::endl;
-   //         leaf = false;
+    if(leaf){
+        // if condition to split
+        if (elems.size() >= 100){
+            int halfW = w/2;
+            int halfH = h/2;
 
-   //         // note this is quadtree, but will change
-   //         childs.push_back( TreeNode(x      , y      , halfH, halfW, level+1));
-   //         childs.push_back( TreeNode(x      , y+halfH, halfH, halfW, level+1));
-   //         childs.push_back( TreeNode(x+halfW, y      , halfH, halfW, level+1));
-   //         childs.push_back( TreeNode(x+halfW, y+halfH, halfH, halfW, level+1));
+            leaf = false;
 
-   //         for (const DrawNode& e : elems){
-   //             distributeElement(e);
-   //         }
-//
-// //           std::cout << "last " << elem << std::endl;
-   //         distributeElement(elem);
-   //     }
-   //     else{
+            // note this is quadtree, but will change
+            childs.push_back( TreeNode(x      , y      , halfH, halfW, level+1));
+            childs.push_back( TreeNode(x      , y+halfH, halfH, halfW, level+1));
+            childs.push_back( TreeNode(x+halfW, y      , halfH, halfW, level+1));
+            childs.push_back( TreeNode(x+halfW, y+halfH, halfH, halfW, level+1));
+
+            for (const DrawNode& e : elems){
+                distributeElement(e);
+            }
+            elems.clear();
+            assert(elems.empty());
+
+            distributeElement(elem);
+        }
+        else{
             elems.push_back(elem);
-   //     }
-   // }
-   // else{
-   //     distributeElement(elem);
-   // }
+        }
+    }
+    else{
+        distributeElement(elem);
+    }
+
+    assert(elems.size()<= 100);
 }
 
 void TreeNode::distributeElement (const DrawNode& elem){
     int halfW = w/2;
     int halfH = h/2;
 
-    std::cout << elem << std::endl;
-                std::cout << elem.x << " " << (x+halfW) << " " << elem.z << " " << (y+halfH) << std::endl;
+ //   std::cout << "elem: " << elem << std::endl;
+ //   std::cout << "dist: " << *this << std::endl;
+ //   std::cout <<  (x+halfW) << " " << (y+halfH) << " : " << halfW << "," << halfH << std::endl;
 
     if (elem.x < x+halfW){
         if (elem.z < y+halfH){
@@ -137,7 +142,7 @@ void TreeNode::distributeElement (const DrawNode& elem){
         }
     }
     else{
-        if (elem.z <= y+halfH){
+        if (elem.z < y+halfH){
             childs[2].addElement(elem);
         }
         else{
@@ -156,6 +161,9 @@ const std::vector<DrawNode> TreeNode::getElements() const{
 std::vector<DrawNode> TreeNode::getElements(){
     return elems;
 };
+const std::vector<TreeNode> TreeNode::getChildren() const{
+    return childs;
+}
 
 std::ostream& operator<<(std::ostream& out, const TreeNode& tn){
     out << "TN[(" << tn.level << ") " << tn.x << "," << tn.y << ", " << tn.w << "x" << tn.h << "] with: " << tn.elems.size() << (tn.leaf? " LEAF":"");
@@ -174,18 +182,55 @@ inline double findnoise2(double x,double y) {
 }
 
 
+inline double interpolate(double a,double b,double x) {
+ double ft=x * 3.1415927;
+ double f=(1.0-cos(ft))* 0.5;
+ return a*(1.0-f)+b*f;
+}
+
+inline double noise(double x,double y){
+    double floorx=(double)((int)x);//This is kinda a cheap way to floor a double integer.
+    double floory=(double)((int)y);
+    double s,t,u,v;//Integer declaration
+    s=findnoise2(floorx,floory);
+    t=findnoise2(floorx+1,floory);
+    u=findnoise2(floorx,floory+1);//Get the surrounding pixels to calculate the transition.
+    v=findnoise2(floorx+1,floory+1);
+    double int1=interpolate(s,t,x-floorx);//Interpolate between the values.
+    double int2=interpolate(u,v,x-floorx);//Here we use x-floorx, to get 1st dimension. Don't mind the x-floorx thingie, it's part of the cosine formula.
+    return interpolate(int1,int2,y-floory);//Here we use y-floory, to get the 2nd dimension.
+}
+
+
+inline double perlin(double x,double y) {
+    int octaves=2;
+    double p = 0.5;
+    double zoom = 1;
+    double getnoise =0;
+    for(int a=0;a<octaves-1;a++) {
+        double frequency = pow(2,a);//This increases the frequency with every loop of the octave.
+        double amplitude = pow(p,a);//This decreases the amplitude with every loop of the octave.
+        getnoise += noise(x*frequency/zoom,y/zoom*frequency)*amplitude;
+    }
+    return getnoise;
+  }
+
 World::World()
-        : nodeTree(-100,-100, 200, 200, 0)
+        : nodeTree(-128,-128, 256, 256, 0)
 {
 
-//    nodeTree.addElement(DrawNode (1.0f, 0.0f, -7.0f));
-//    nodeTree.addElement(DrawNode (-1.0f, 0.0f, -7.0f));
-//    nodeTree.addElement(DrawNode (0.0f, 0.0f, 0.0f));
+  //  nodeTree.addElement(DrawNode (1.0f, 0.0f, 0.0f));
+  //  nodeTree.addElement(DrawNode (-1.0f, 0.0f, 0.0f));
+  //  nodeTree.addElement(DrawNode (.0f, 0.0f, 0.0f));
+  //  nodeTree.addElement(DrawNode (.0f, 0.0f, 1.0f));
+
+  //  nodeTree.addElement(DrawNode (1.0f, 0.0f, -3.0f));
+  //  nodeTree.addElement(DrawNode (1.0f, 0.0f, -2.0f));
 
     for (float i =-100; i < 100; ++i){
         std::cout << ".";
         for (float j =-100; j < 100; ++j){
-            const auto& e = DrawNode (i, findnoise2(i,j), j);
+            const auto& e = DrawNode (i, perlin(i,j), j);
       //      std::cout << e << std::endl;
             nodeTree.addElement(e);
         }
@@ -226,86 +271,6 @@ void World::draw() const{
         }
     } vis;
     glPushMatrix();
-    vis.TraverseTree(nodeTree);
+    vis.traverseTree(nodeTree);
     glPopMatrix();
-
-//    glPushMatrix();
-//    glLoadIdentity();
-//    glTranslatef(-1.5f, 0.0f, -6.0f);
-//    glRotatef(rotTri, 0.0f, 1.0f, 0.0f);
-//    glBegin(GL_TRIANGLES);
-//        /* front of pyramid */
-//        glColor3f(1.0f, 0.0f, 0.0f);
-//        glVertex3f(0.0f, 1.0f, 0.0f);
-//        glColor3f(0.0f, 0.0f, 1.0f);
-//        glVertex3f(-1.0f, -1.0f, 1.0f);
-//        glColor3f(0.0f, 1.0f, 0.0f);
-//        glVertex3f(1.0f, -1.0f, 1.0f);
-//        /* right side of pyramid */
-//        glColor3f(1.0f, 0.0f, 0.0f);
-//        glVertex3f(0.0f, 1.0f, 0.0f);
-//        glColor3f(0.0f, 1.0f, 0.0f);
-//        glVertex3f(1.0f, -1.0f, 1.0f);
-//        glColor3f(0.0f, 0.0f, 1.0f);
-//        glVertex3f(1.0f, -1.0f, -1.0f);
-//        /* back of pyramid */
-//        glColor3f(1.0f, 0.0f, 0.0f);
-//        glVertex3f(0.0f, 1.0f, 0.0f);
-//        glColor3f(0.0f, 0.0f, 1.0f);
-//        glVertex3f(1.0f, -1.0f, -1.0f);
-//        glColor3f(0.0f, 1.0f, 0.0f);
-//        glVertex3f(-1.0f, -1.0f, -1.0f);
-//        /* left side of pyramid */
-//        glColor3f(1.0f, 0.0f, 0.0f);
-//        glVertex3f(0.0f, 1.0f, 0.0f);
-//        glColor3f(0.0f, 1.0f, 0.0f);
-//        glVertex3f(-1.0f, -1.0f, -1.0f);
-//        glColor3f(0.0f, 0.0f, 1.0f);
-//        glVertex3f(-1.0f, -1.0f, 1.0f);
-//    glEnd();
-//    glPopMatrix();
-
-//
-//    glLoadIdentity();
-//    glTranslatef(1.5f, 0.0f, -7.0f);
-//    glRotatef(rotQuad, 1.0f, 0.0f, 0.0f);
-//
-//    glBegin(GL_QUADS);
-//        /* top of cube */
-//        glColor3f(0.0f, 1.0f, 0.0f);
-//        glVertex3f(1.0f, 1.0f, -1.0f);
-//        glVertex3f(-1.0f, 1.0f, -1.0f);
-//        glVertex3f(-1.0f, 1.0f, 1.0f);
-//        glVertex3f(1.0f, 1.0f, 1.0f);
-//        /* bottom of cube */
-//        glColor3f(1.0f, 0.5f, 0.0f);
-//        glVertex3f(1.0f, -1.0f, 1.0f);
-//        glVertex3f(-1.0f, -1.0f, 1.0f);
-//        glVertex3f(-1.0f, -1.0f, -1.0f);
-//        glVertex3f(1.0f, -1.0f, -1.0f);
-//        /* front of cube */
-//        glColor3f(1.0f, 0.0f, 0.0f);
-//        glVertex3f(1.0f, 1.0f, 1.0f);
-//        glVertex3f(-1.0f, 1.0f, 1.0f);
-//        glVertex3f(-1.0f, -1.0f, 1.0f);
-//        glVertex3f(1.0f, -1.0f, 1.0f);
-//        /* back of cube */
-//        glColor3f(1.0f, 1.0f, 0.0f);
-//        glVertex3f(-1.0f, 1.0f, -1.0f);
-//        glVertex3f(1.0f, 1.0f, -1.0f);
-//        glVertex3f(1.0f, -1.0f, -1.0f);
-//        glVertex3f(-1.0f, -1.0f, -1.0f);
-//        /* right side of cube */
-//        glColor3f(1.0f, 0.0f, 1.0f);
-//        glVertex3f(1.0f, 1.0f, -1.0f);
-//        glVertex3f(1.0f, 1.0f, 1.0f);
-//        glVertex3f(1.0f, -1.0f, 1.0f);
-//        glVertex3f(1.0f, -1.0f, -1.0f);
-//        /* left side of cube */
-//        glColor3f(0.0f, 1.0f, 1.0f);
-//        glVertex3f(-1.0f, 1.0f, 1.0f);
-//        glVertex3f(-1.0f, 1.0f, -1.0f);
-//        glVertex3f(-1.0f, -1.0f, -1.0f);
-//        glVertex3f(-1.0f, -1.0f, 1.0f);
-//    glEnd();
 }

@@ -60,7 +60,7 @@ void WindowManager::resizeGLScene(unsigned int width, unsigned int height) {
     glViewport(0, 0, width, height);    /* Reset The Current Viewport And Perspective Transformation */
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.f, 1000.0f);
+    gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, .1f, 1000.0f);
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -69,10 +69,12 @@ void WindowManager::initGL(unsigned int width, unsigned int height) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0f);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
     GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
     GLfloat mat_shininess[] = { 50.0 };
     GLfloat light_position[] = { 0.0, 40.0, 0.0, 1.0 };
-    glClearColor (0.0, 0.0, 0.0, 0.0);
 
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);

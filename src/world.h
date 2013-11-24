@@ -23,12 +23,12 @@ class TreeNode{
     TreeNode ();
     TreeNode (int x, int y, int w, int h, unsigned level);
 
-
     void addElement (const DrawNode& elem);
     void distributeElement (const DrawNode& elem);
     bool isLeaf()const ;
     const std::vector<DrawNode> getElements() const;
     std::vector<DrawNode> getElements();
+    const std::vector<TreeNode> getChildren() const;
 
     friend std::ostream& operator<<(std::ostream& out, const TreeNode& tn);
 };
@@ -43,12 +43,16 @@ class DrawingVisitor {
         void visitElem (const E& elem){
         }
 
-        void TraverseTree(const TreeNode& node ){
+        void traverseTree(const TreeNode& node ){
             if (node.isLeaf()){
                 for(const auto& e : node.getElements())
                     static_cast<BASE*>(this)->visitElem(e);
             }
-            // TODO: recursive descend
+            else{
+                for(const auto& n : node.getChildren())
+                    traverseTree(n);
+
+            }
         }
 };
 
