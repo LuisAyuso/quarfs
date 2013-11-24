@@ -10,7 +10,9 @@ NAVIGATION:
 RENDER:
 =======
 
-    - render is good enought right now
+    -- add Zbuffer, it shems that whe draw by order
+
+    - projected shadows
     - move all the gl instructions into vbos (map cubes into cordinates)
     - two pass render, create a static map to enable interaction (hidden buffer)
     - nice shader vs textures? 
@@ -19,6 +21,7 @@ RENDER:
 MAP:
 ====
 
+    -- fix the mesh with the tree
     - octree algorithm
     - add more sofisticated map generation, 2 perlin passes + generative erosion
 
