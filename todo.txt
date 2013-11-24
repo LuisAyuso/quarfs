@@ -1,0 +1,26 @@
+
+
+NAVIGATION:
+===========
+
+    - add navigation: joystick and/or mouse
+    - think on interaction
+
+
+RENDER:
+=======
+
+    - render is good enought right now
+    - move all the gl instructions into vbos (map cubes into cordinates)
+    - two pass render, create a static map to enable interaction (hidden buffer)
+    - nice shader vs textures? 
+
+
+MAP:
+====
+
+    - octree algorithm
+    - add more sofisticated map generation, 2 perlin passes + generative erosion
+
+
+
