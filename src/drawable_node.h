@@ -1,17 +1,16 @@
 #pragma once
-#include <array>
 #include <vector>
-
 
 /**
  * this an octree node, it divides space in 8 sub spaces
  */
 template <typename T>
-class OcNode : public T {
+class OcNode {
 
-    std::array<OcNode<T>, 8> childs;
+//  std::array<OcNode<T>,8> childs;  // WRONG. incomplete type
+    std::vector<OcNode<T>> childs;     // this can be a vector BUT not an array?  interesting
     std::vector<T> elems;
-    bool _leaf;
+    bool leaf;
 
     unsigned x,y;
     unsigned w,h;
@@ -19,11 +18,11 @@ class OcNode : public T {
 public:
 
     OcNode()
-        : _leaf(true)
+        : leaf(true), childs(0)
     {}
 
-    bool leaf(){
-        return _leaf;
+    bool isLeaf()const {
+        return leaf;
     }
 
     std::vector<T>& getElements(){
@@ -35,12 +34,15 @@ public:
     }
 
     void addElement (const T& elem){
-        // if leaf
+        if (leaf){
+            elems.push_back(elem);
         // // if condition to split. 
         // // // create 8 childs, distribute elements
+        // // // not leaf anymore
         // // else
         // // // add to the list
         // if not leaf, forward to the right child
+        }
     }
 };
 
@@ -50,16 +52,20 @@ public:
 
 
 
-template <typename T>
-class DrawingVisitor : public T{
-
-    private:
-
-        // default behavior of non implemented functions
+template <typename BASE, typename E>
+class DrawingVisitor {
 
     public:
 
+        // default behavior of non implemented functions
+        void visitElem (const E& elem){
+        }
 
-        void TraverseTree(){
+        void TraverseTree(const OcNode<E>& node ){
+            if (node.isLeaf()){
+                for(const auto& e : node.getElements())
+                    static_cast<BASE*>(this)->visitElem(e);
+            }
+            // TODO: recursive descend
         }
 };

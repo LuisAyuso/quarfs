@@ -8,7 +8,6 @@
  #include<GL/glx.h>
  #include<GL/glu.h>
 
-
 #include "world.h"
 #include "joystick.h"
 
@@ -18,7 +17,7 @@ void resizeGLScene(unsigned int width, unsigned int height) {
     glViewport(0, 0, width, height);    /* Reset The Current Viewport And Perspective Transformation */
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.1f, 100.0f);
+    gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, 0.f, 1000.0f);
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -26,9 +25,26 @@ void initGL(unsigned int width, unsigned int height) {
     glShadeModel(GL_SMOOTH);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClearDepth(1.0f);
+
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat mat_shininess[] = { 50.0 };
+    GLfloat light_position[] = { 0.0, 40.0, 0.0, 1.0 };
+    glClearColor (0.0, 0.0, 0.0, 0.0);
+
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+
+    glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+    glEnable(GL_COLOR_MATERIAL);
+
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
     /* we use resizeGLScene once to set up our initial perspective */
     resizeGLScene(width, height);
     /* Reset the rotation angles of our objects */
@@ -80,6 +96,7 @@ int main(int argc, char *argv[]) {
     Atom wmDeleteMessage = XInternAtom(display, "WM_DELETE_WINDOW", false);
     XSetWMProtocols(display, win, &wmDeleteMessage, 1);
 
+    // create gl context
 	glc = glXCreateContext(display, vi, NULL, GL_TRUE);
 	glXMakeCurrent(display, win, glc);
 
@@ -99,16 +116,16 @@ int main(int argc, char *argv[]) {
 
     // render loop
     bool running = true;
+    bool repaint = true;
 	while(running) {
 
         // attend first the window events
         while (XPending(display) > 0) {
             XNextEvent(display, &xev);
-
-            std::cout << "event " << xev.type << std::endl;
+           // std::cout << "event " << xev.type << std::endl;
 
             if(xev.type == Expose) {
-                // expose is ignored, we are updating the screen anyway
+                repaint = true;
                 break;
             }
 
@@ -128,19 +145,26 @@ int main(int argc, char *argv[]) {
             }
 
             else if(xev.type == KeyPress ){
-                //Vif (XLookupKeysym(&xev.xkey, 0) == XK_Escape)
-                //    running = false;
+                if (XLookupKeysym(&xev.xkey, 0) == XK_Escape){
+                    running = false;
+                }else{
                 //if (XLookupKeysym(&xev.xkey, 0) == XK_Spacebar)
-                    
-                    std::cout << joy->get_num_buttons() << std::endl;
-                    std::cout << joy->get_num_axes() << std::endl;
-                    std::cout << joy->get_name() << std::endl;
+               //     std::cout << joy->get_num_buttons() << std::endl;
+               //     std::cout << joy->get_num_axes() << std::endl;
+               //     std::cout << joy->get_name() << std::endl;
+                }
             }
         }
 
         // upodate scene
-        if (world.update()){
+        if (world.update() || repaint){
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
             // set camera position and projection
+            glLoadIdentity();
+            gluLookAt(0, 10, -35, /* look from camera XYZ */ 
+                      0, 0, 0, /* look at the origin */ 
+                      0, 1, 0); /* positive Y up vector */
             
             // draw hud
 
@@ -149,9 +173,9 @@ int main(int argc, char *argv[]) {
 
             // done
             glXSwapBuffers(display, win);
+            repaint = false;
         }
 	}
-
     if (joy) delete joy;
 
     glXMakeCurrent(display, None, NULL);
