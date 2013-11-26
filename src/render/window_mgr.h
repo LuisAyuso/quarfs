@@ -1,37 +1,28 @@
 
 #pragma once
 
-#include<X11/X.h>
-#include<X11/Xlib.h>
-#include<GL/gl.h>
-#include<GL/glx.h>
-#include<GL/glu.h>
+// forward declaration
+class GLFWwindow;
+
 
 class WindowManager{
+    
+    GLFWwindow* window;
+    unsigned shader_program;
 
-    Display*                display;
-    Window                  root;
-    Window                  win;
-    GLXContext              glc;
+    double fps;
+    void update_fps_counter ();
 
     public:
+        WindowManager(unsigned w, unsigned h, const char* name);
+        WindowManager(const WindowManager& ) = delete;
+        WindowManager(const WindowManager&& ) = delete;
+        ~WindowManager();
 
-    WindowManager(){
-    }
+        void setupFrame();
+        void finishFrame();
 
-    ~WindowManager(){
-        destroyContext();
-    }
+        bool isFinish()const;
 
-    Display* createAndInitialzeWindow();
-
-    void resizeGLScene(unsigned int width, unsigned int height) ;
-
-    void initGL(unsigned int width, unsigned int height) ;
-
-    void destroyContext();
-
-    void flushWindow(){
-        glXSwapBuffers(display, win);
-    }
+        double getFrameRate ();
 };

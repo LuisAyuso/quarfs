@@ -9,17 +9,16 @@ NAVIGATION:
 RENDER:
 =======
 
-    - move all the gl instructions into vbos (map cubes into cordinates)
-    - projected shadows, much nicer 3d sensation (also moving sun... pretty cool)
+    - move all the gl instructions into vbos (map cubes into cordinates) -> old imperative not supported anymore
+    - finish the render with shaders
     - two pass render, create a static map to enable interaction (hidden buffer)
-    - nice shader vs textures? 
+    - projected shadows, much nicer 3d sensation (also moving sun... pretty cool)
 
 MAP:
 ====
 
     - octree algorithm
     - add more sofisticated map generation, 2 perlin passes + generative erosion
-
     - map generation is a problem, research something nice
 
 

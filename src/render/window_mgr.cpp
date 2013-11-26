@@ -1,104 +1,235 @@
-
 #include "render/window_mgr.h"
+
+#include <GL/glew.h> // include GLEW and new version of GL on Windows
+#include <GL/glfw3.h> // GLFW helper library
+
 #include <iostream>
+#include <assert.h>
+#include <math.h>
 
-Display* WindowManager::createAndInitialzeWindow(){
+#include "utils/maths_funcs.h"
 
-    GLint                   att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
-    XVisualInfo             *vi;
-    Colormap                cmap;
-    XSetWindowAttributes    swa;
-    XWindowAttributes       gwa;
+namespace {
 
-	display = XOpenDisplay(NULL);
+    const char* vertex_shader =
+        "#version 400\n"
+        "layout(location = 0) in vec3 vtx_pos;"
+        "layout(location = 1) in vec3 vtx_color;"
+        "uniform mat4 matrix;"
+        "out vec3 color;"
+        "void main () {"
+        "  color = vtx_color;"
+        "  gl_Position = matrix * vec4 (vtx_pos, 1.0);"
+        "}";
 
-	if(display == NULL) {
-        std::cerr << "\n\tcannot connect to X server\n\n";
-        exit(0);
-	}
+    const char* fragment_shader =
+        "#version 400\n"
+        "in  vec3 color;"
+        "out vec4 frag_color;"
+        "void main () {"
+        "  frag_color = vec4 (color, 1.0);"
+        "}";
 
-	root = DefaultRootWindow(display);
+    void error_callback (int error, const char* description) {
+        std::cout << "Error code [" << error << "] " << description << std::endl;
+    }
 
-	vi = glXChooseVisual(display, 0, att);
+    // keep track of window size for things like the viewport and the mouse cursor
+    int g_gl_width = 640;
+    int g_gl_height = 480;
 
-	if(vi == NULL) {
-        std::cerr <<"\n\tno appropriate visual found\n\n";
-        exit(-1);
-	} 
+    // a call-back function
+    void window_size_callback (GLFWwindow* window, int width, int height) {
+        g_gl_width = width;
+        g_gl_height = height;
 
-	cmap = XCreateColormap(display, root, vi->visual, AllocNone);
+        //persperctive changes go here
+    }
 
-	swa.colormap = cmap;
-	swa.event_mask = ExposureMask | KeyPressMask | ButtonPressMask | StructureNotifyMask;
+    bool is_compiled(unsigned shader){
+        int params = -1;
+        glGetShaderiv (shader, GL_COMPILE_STATUS, &params);
+        if (GL_TRUE != params) {
+            std::cout << " == shader compilation failed == " << std::endl;
+            int max_length = 2048;
+            int actual_length = 0;
+            char log[2048];
+            glGetShaderInfoLog (shader, max_length, &actual_length, log);
+            std::cout << log << std::endl;
+            return false; 
+        }
+        return true;
+    }
 
-	win = XCreateWindow(display, root, 0, 0, 800, 600, 0, vi->depth, InputOutput, vi->visual, CWColormap | CWEventMask, &swa);
+    bool is_valid (unsigned prog) {
+        glValidateProgram (prog);
+        int params = -1;
+        glGetProgramiv (prog, GL_VALIDATE_STATUS, &params);
+        if (GL_TRUE != params) {
+            std::cout << " == shader program not valid == " << std::endl;
+            int max_length = 2048;
+            int actual_length = 0;
+            char log[2048];
+            glGetProgramInfoLog (prog, max_length, &actual_length, log);
+            std::cout << log << std::endl;
+            return false;
+        }
+        return true;
+    }
 
-	XMapWindow(display, win);
-	XStoreName(display, win, "cubeLand");
+    // http://antongerdelan.net/teaching/3dprog1/maths_cheat_sheet.pdf
 
-    // register the close window button
-    Atom wmDeleteMessage = XInternAtom(display, "WM_DELETE_WINDOW", false);
-    XSetWMProtocols(display, win, &wmDeleteMessage, 1);
+float matrix[] = {
+     1.0f, 0.0f, 0.0f, 0.0f, // first column
+     0.0f, 1.0f, 0.0f, 0.0f, // second column
+     0.0f, 0.0f, 1.0f, 0.0f, // third column
+     0.5f, 0.0f, 0.0f, 1.0f  // fourth column
+};
 
-    // create gl context
-	glc = glXCreateContext(display, vi, NULL, GL_TRUE);
-	glXMakeCurrent(display, win, glc);
 
-    // now we have a window, lets set some ogl on it
-    int x,y;
-    unsigned width, height, border, depth;
-    Window dummy;
-    XGetGeometry(display, win, &dummy, &x, &y, &width, &height, &border, &depth);
-    initGL(width,height);
-    return display;
+} // anonimous namespace
+
+WindowManager::WindowManager(unsigned w, unsigned h, const char* name){
+
+    // start GL context and O/S window using the GLFW helper library
+    if (!glfwInit ()) {
+        std::cerr << "ERROR: could not start GLFW3\n";
+        throw -1;
+    } 
+
+
+    window = glfwCreateWindow (w, h, name, NULL, NULL);
+    if (!window) {
+        std::cerr << "ERROR: could not open window with GLFW3\n";
+        glfwTerminate();
+        throw -1;
+    }
+    glfwMakeContextCurrent (window);
+
+    glfwSetErrorCallback (error_callback);
+    glfwSetWindowSizeCallback (window, window_size_callback);
+
+    // start GLEW extension handler
+    glewInit ();
+
+    //////////////////////////////////////////////
+    //  minimun version to use
+    glfwWindowHint (GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint (GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint (GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint (GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    /////////////////////////////////////////////
+    // antialiassing
+    glfwWindowHint (GLFW_SAMPLES, 4);
+
+    // get version info
+    const GLubyte* renderer = glGetString (GL_RENDERER); // get renderer string
+    const GLubyte* version = glGetString (GL_VERSION); // version as a string
+
+    std::cout << "Renderer: "  << renderer << std::endl;
+    std::cout << "OpenGL version supported " <<  version << std::endl;
+
+    // tell GL to only draw onto a pixel if the shape is closer to the viewer
+    glEnable (GL_DEPTH_TEST); // enable depth-testing
+    glDepthFunc (GL_LESS); // depth-testing interprets a smaller value as "closer"
+
+    glEnable (GL_CULL_FACE); // cull face
+    glCullFace (GL_BACK); // cull back face
+    glFrontFace (GL_CW); // GL_CCW for counter clock-wise
+
+    //////////////////////////////////////////////
+    // compile shaders
+    unsigned int vs = glCreateShader (GL_VERTEX_SHADER);
+    glShaderSource (vs, 1, &vertex_shader, NULL);
+    glCompileShader (vs);
+    assert(is_compiled(vs));
+    unsigned int fs = glCreateShader (GL_FRAGMENT_SHADER);
+    glShaderSource (fs, 1, &fragment_shader, NULL);
+    glCompileShader (fs);
+    assert(is_compiled(fs));
+
+    shader_program = glCreateProgram ();
+    glAttachShader (shader_program, fs);
+    glAttachShader (shader_program, vs);
+    glLinkProgram (shader_program);
+
+    assert(is_valid(shader_program));
+
+    int matrix_location = glGetUniformLocation (shader_program, "matrix");
+    glUseProgram (shader_program);
+    glUniformMatrix4fv (matrix_location, 1, GL_FALSE, matrix);
 }
 
-void WindowManager::resizeGLScene(unsigned int width, unsigned int height) {
-
-    if (height == 0)    /* Prevent A Divide By Zero If The Window Is Too Small */
-        height = 1;
-    glViewport(0, 0, width, height);    /* Reset The Current Viewport And Perspective Transformation */
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    gluPerspective(45.0f, (GLfloat)width / (GLfloat)height, .1f, 1000.0f);
-    glMatrixMode(GL_MODELVIEW);
+WindowManager::~WindowManager(){
+    // close GL context and any other GLFW resources
+    glfwTerminate();
 }
 
-void WindowManager::initGL(unsigned int width, unsigned int height) {
-    glShadeModel(GL_SMOOTH);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClearDepth(1.0f);
+void WindowManager::setupFrame(){
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    update_fps_counter();
 
-    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-    GLfloat mat_shininess[] = { 50.0 };
-    GLfloat light_position[] = { 0.0, 40.0, 0.0, 1.0 };
+    static float speed = 0.1;
+    static float last_position = 0.0f;
+    static double previous_seconds = glfwGetTime ();
+    double current_seconds = glfwGetTime ();
+    double elapsed_seconds = current_seconds - previous_seconds;
+    previous_seconds = current_seconds;
+    
+    // reverse direction when going to far left or right
+    if (fabs(last_position) > 1.0f) {
+        speed = -speed;
+    }
+    
+    // update the matrix
+    matrix[12] = elapsed_seconds * speed + last_position;
+    last_position = matrix[12];
+    int matrix_location = glGetUniformLocation (shader_program, "matrix");
+    glUseProgram (shader_program);
+    glUniformMatrix4fv (matrix_location, 1, GL_FALSE, matrix);
+              
 
-    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    // wipe the drawing surface clear
+    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glViewport (0, 0, g_gl_width, g_gl_height);
 
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-
-    glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-    glEnable(GL_COLOR_MATERIAL);
-
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LEQUAL);
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-
-    /* we use resizeGLScene once to set up our initial perspective */
-    resizeGLScene(width, height);
-    /* Reset the rotation angles of our objects */
-    glFlush();
+    glUseProgram (shader_program);
 }
 
-void WindowManager::destroyContext(){
-    glXMakeCurrent(display, None, NULL);
-    glXDestroyContext(display, glc);
-    XDestroyWindow(display, win);
-    XCloseDisplay(display);
+void WindowManager::finishFrame(){
+    // update other events like input handling 
+    //
+    glfwPollEvents ();
+    // put the stuff we've been drawing onto the display
+    glfwSwapBuffers (window);
+
+    // ESC key handling
+    if (GLFW_PRESS == glfwGetKey (window, GLFW_KEY_ESCAPE)) {
+        glfwSetWindowShouldClose (window, 1);
+    }
+}
+
+bool WindowManager::isFinish() const{
+    return glfwWindowShouldClose (window);
+}
+
+void WindowManager::update_fps_counter(){
+    static double previous_seconds = glfwGetTime ();
+    static int frame_count;
+    double current_seconds = glfwGetTime ();
+    double elapsed_seconds = current_seconds - previous_seconds;
+    if (elapsed_seconds > 0.25) {
+        previous_seconds = current_seconds;
+        fps = (double)frame_count / elapsed_seconds;
+        char tmp[128];
+        sprintf (tmp, "Quarfs @ fps: %.2lf", fps);
+        glfwSetWindowTitle (window, tmp);
+        frame_count = 0;
+    }
+    frame_count++;
+}
+
+double WindowManager::getFrameRate (){
+    return fps;
 }
