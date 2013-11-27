@@ -11,6 +11,12 @@ vec2::vec2 (float x, float y) {
 	v[0] = x;
 	v[1] = y;
 }
+float& vec2::operator[](int i){
+    return v[i];
+}
+float vec2::operator[](int i) const{
+    return v[i];
+}
 
 vec3::vec3 () {}
 
@@ -30,6 +36,12 @@ vec3::vec3 (const vec4& vv) {
 	v[0] = vv.v[0];
 	v[1] = vv.v[1];
 	v[2] = vv.v[2];
+}
+float& vec3::operator[](int i){
+    return v[i];
+}
+float vec3::operator[](int i) const{
+    return v[i];
 }
 
 vec4::vec4 () {}
@@ -55,6 +67,13 @@ vec4::vec4 (const vec3& vv, float w) {
 	v[3] = w;
 }
 
+float& vec4::operator[](int i){
+    return v[i];
+}
+float vec4::operator[](int i) const{
+    return v[i];
+}
+
 mat3::mat3 () {}
 
 // note: entered in rows, but stored in columns
@@ -70,6 +89,17 @@ mat3::mat3 (float a, float b, float c,
 	m[6] = c;
 	m[7] = f;
 	m[8] = i;
+}
+
+mat3::operator float* (){
+    return m;
+}
+
+float& mat3::operator[](int i){
+    return m[i];
+}
+float mat3::operator[](int i) const{
+    return m[i];
 }
 
 mat4::mat4 () {}
@@ -97,8 +127,38 @@ mat4::mat4 (float a, float b, float c, float d,
 	m[15] = p;
 }
 
+mat4::operator float* (){
+    return m;
+}
+float& mat4::operator[](int i){
+    return m[i];
+}
+float mat4::operator[](int i) const{
+    return m[i];
+}
+
 /*----------------------------------PRINT FUNCTIONS-----------------------------------*/
 
+std::ostream& operator << (std::ostream& out, const vec2& v){
+    out << "[" << v[0] << "," << v[1] << "]";
+}
+std::ostream& operator << (std::ostream& out, const vec3& v){
+    out << "[" << v[0] << "," << v[1] <<  "," << v[2] << "]";
+}
+std::ostream& operator << (std::ostream& out, const vec4& v){
+    out << "[" << v[0] << "," << v[1] <<  "," << v[2] << "," << v[3] << "]";
+}
+std::ostream& operator << (std::ostream& out, const mat3& v){
+    out << "[" << v[0] << "," << v[1] <<  "," << v[2] << "/"
+               << v[3] << "," << v[4] <<  "," << v[5] << "/"
+               << v[6] << "," << v[7] <<  "," << v[8] << "]";
+}
+std::ostream& operator << (std::ostream& out, const mat4& v){
+    out << "[" << v[0] << "," << v[1] <<  "," << v[2] << "," << v[3] << "/"
+               << v[4] << "," << v[5] <<  "," << v[6] << "," << v[7] << "/"
+               << v[8] << "," << v[9] <<  "," << v[10]<< "," << v[11]<< "/"
+               << v[12]<< "," << v[13]<<  "," << v[14]<< "," << v[15]<< "]";
+}
 void print (const vec2& v) {
 	printf ("[%.2f, %.2f]\n", v.v[0], v.v[1]);
 }

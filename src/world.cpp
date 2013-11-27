@@ -1,73 +1,7 @@
 
+#include <math.h>
 #include "world.h"
 
-#include<GL/gl.h>
-#include<GL/glx.h>
-#include<GL/glu.h>
-
-#include <math.h>
-
-DrawNode::DrawNode(float x, float y, float z)
-:   x(x), y(y), z(z)
-{}
-
-std::ostream& operator<<(std::ostream& out, const DrawNode& dn){
-    out << "DN[" << dn.x << "," << dn.z << "," << dn.y << "]";
-    return out;
-}
-
-void DrawNode::draw ()const {
-    glPushMatrix();
-    glTranslatef(x,y,z);
-    glBegin(GL_QUADS);
-
-        glColor3f(159.0f/256.0f,182.0f/256.0f,205.0f/256.0f);
-
-        /* top of cube */
-        glNormal3f(0.f,  1.f, 0.f);
-        glVertex3f(1.0f, 1.0f, 0.0f);
-        glVertex3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(0.0f, 1.0f, 1.0f);
-        glVertex3f(1.0f, 1.0f, 1.0f);
-
-        /* bottom of cube */
-        glNormal3f(0.f, -1.f, 0.f);
-        glVertex3f(1.0f, 0.0f, 1.0f);
-        glVertex3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(0.0f, 0.0f, 0.0f);
-        glVertex3f(1.0f, 0.0f, 0.0f);
-
-        /* front of cube */
-
-        glNormal3f(0.f, 0.f, 1.f);
-        glVertex3f(1.0f, 1.0f, 1.0f);
-        glVertex3f(0.0f, 1.0f, 1.0f);
-        glVertex3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(1.0f, 0.0f, 1.0f);
-
-        /* back of cube */
-        glNormal3f(0.f, 0.f, -1.f);
-        glVertex3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(1.0f, 1.0f, 0.0f);
-        glVertex3f(1.0f, 0.0f, 0.0f);
-        glVertex3f(0.0f, 0.0f, 0.0f);
-
-        /* right side of cube */
-        glNormal3f(1.f, 0.f, 0.f);
-        glVertex3f(1.0f, 1.0f, 0.0f);
-        glVertex3f(1.0f, 1.0f, 1.0f);
-        glVertex3f(1.0f, 0.0f, 1.0f);
-        glVertex3f(1.0f, 0.0f, 0.0f);
-
-        /* left side of cube */
-        glNormal3f(-1.f, 0.f, 0.f);
-        glVertex3f(0.0f, 1.0f, 1.0f);
-        glVertex3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(0.0f, 0.0f, 0.0f);
-        glVertex3f(0.0f, 0.0f, 1.0f);
-    glEnd();
-    glPopMatrix();
-}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////7
 ///////////////////////////////////////////////////////////////////////////////////////////////7
@@ -87,10 +21,10 @@ TreeNode::TreeNode (int x, int y, int w, int h, unsigned level)
 void TreeNode::addElement (const DrawNode& elem){
 
    // std::cout << "\nin node: " << *this << std::endl;
-    assert( elem.x >= x);
-    assert( elem.z >= y);
-    assert( elem.x < x+w);
-    assert( elem.z < y+h);
+    assert( elem.x() >= x);
+    assert( elem.z() >= y);
+    assert( elem.x() < x+w);
+    assert( elem.z() < y+h);
 
     if(leaf){
         // if condition to split
@@ -133,8 +67,8 @@ void TreeNode::distributeElement (const DrawNode& elem){
  //   std::cout << "dist: " << *this << std::endl;
  //   std::cout <<  (x+halfW) << " " << (y+halfH) << " : " << halfW << "," << halfH << std::endl;
 
-    if (elem.x < x+halfW){
-        if (elem.z < y+halfH){
+    if (elem.x() < x+halfW){
+        if (elem.z() < y+halfH){
             childs[0].addElement(elem);
         }
         else{
@@ -142,7 +76,7 @@ void TreeNode::distributeElement (const DrawNode& elem){
         }
     }
     else{
-        if (elem.z < y+halfH){
+        if (elem.z() < y+halfH){
             childs[2].addElement(elem);
         }
         else{
@@ -219,7 +153,9 @@ World::World()
         : nodeTree(-128,-128, 256, 256, 0)
 {
 
-  //  nodeTree.addElement(DrawNode (1.0f, 0.0f, 0.0f));
+    nodeTree.addElement(DrawNode (0.0f, 0.0f, 0.0f));
+    nodeTree.addElement(DrawNode (0.5f, 0.0f, 0.0f));
+    nodeTree.addElement(DrawNode (0.0f, 0.5f, 0.0f));
   //  nodeTree.addElement(DrawNode (-1.0f, 0.0f, 0.0f));
   //  nodeTree.addElement(DrawNode (.0f, 0.0f, 0.0f));
   //  nodeTree.addElement(DrawNode (.0f, 0.0f, 1.0f));
@@ -227,14 +163,14 @@ World::World()
   //  nodeTree.addElement(DrawNode (1.0f, 0.0f, -3.0f));
   //  nodeTree.addElement(DrawNode (1.0f, 0.0f, -2.0f));
 
-    for (float i =-100; i < 100; ++i){
-        std::cout << ".";
-        for (float j =-100; j < 100; ++j){
-            const auto& e = DrawNode (i, perlin(i,j), j);
-      //      std::cout << e << std::endl;
-            nodeTree.addElement(e);
-        }
-    }
+ //   for (float i =-1; i < 2; ++i){
+ //       std::cout << ".";
+ //       for (float j =-1; j < 2; ++j){
+ //           const auto& e = DrawNode (i, perlin(i,j), j);
+ //     //      std::cout << e << std::endl;
+ //           nodeTree.addElement(e);
+ //       }
+ //   }
     std::cout << " map done " << std::endl;
 
 }
@@ -247,30 +183,28 @@ bool World::update(){
     return false;
 }
 
-void World::draw() const{
-
-    // draw floor lines
-    glDisable(GL_LIGHTING);
-    glBegin(GL_LINES);
-    for (float i=-100; i < 100; i+=10){
-        glColor3f(0.0f, .5f, 0.0f);
-        glVertex3f(i, 0.f, 100.0f);
-        glVertex3f(i, 0.f,-100.0f);
-    }
-    for (float i=-100; i < 100; i+=10){
-        glColor3f(0.0f, .5f, 0.0f);
-        glVertex3f(-100.f, 0.f, i);
-        glVertex3f( 100.f, 0.f, i);
-    }
-    glEnd();
-    glEnable(GL_LIGHTING);
-
-    struct DrawVisitor : public DrawingVisitor <DrawVisitor, DrawNode>{
-        void visitElem (const DrawNode& elem){
-            elem.draw();
-        }
-    } vis;
-    glPushMatrix();
-    vis.traverseTree(nodeTree);
-    glPopMatrix();
-}
+//void World::draw() const{
+//
+//  //  // draw floor lines
+//  //  glDisable(GL_LIGHTING);
+//  //  glBegin(GL_LINES);
+//  //  for (float i=-100; i < 100; i+=10){
+//  //      glColor3f(0.0f, .5f, 0.0f);
+//  //      glVertex3f(i, 0.f, 100.0f);
+//  //      glVertex3f(i, 0.f,-100.0f);
+//  //  }
+//  //  for (float i=-100; i < 100; i+=10){
+//  //      glColor3f(0.0f, .5f, 0.0f);
+//  //      glVertex3f(-100.f, 0.f, i);
+//  //      glVertex3f( 100.f, 0.f, i);
+//  //  }
+//  //  glEnd();
+//  //  glEnable(GL_LIGHTING);
+//
+//    struct DrawVisitor : public DrawingVisitor <DrawVisitor, DrawNode>{
+//        void visitElem (const DrawNode& elem){
+//            elem.draw();
+//        }
+//    } vis;
+//    vis.traverseTree(nodeTree);
+//}

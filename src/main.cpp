@@ -5,27 +5,27 @@
 #include <iostream>
 
 #include "render/window_mgr.h"
+#include "utils/matrix.h"
+#include "world.h"
 
-// if order changes, then the thing is not the same
-float points[] = {
-     0.0f, 0.0f,  0.0f,
-     0.0f, 0.5f,  0.0f,
-     0.5f, 0.0f,  0.0f,
-     0.5f, 0.5f,  0.0f
-};
+unsigned int dumm(){
 
-float colours[] = {
-     1.0f, 0.0f,  0.0f,
-     0.0f, 1.0f,  0.0f,
-     0.0f, 0.0f,  1.0f,
-     1.0f, 0.0f,  1.0f
-};
-      
+    std::cout << "alocate the cube! " << std::endl;
 
-int main () {
+    // alocate in memory the vertex, then copy to gpu and forget them
+    // if order changes, then the thing is not the same
+    float points[] = {
+        -0.5f, 0.0f,  0.0f,
+        .0f, 0.5f,  0.0f,
+        .5f, 0.0f,  0.0f
+    };
 
-    WindowManager window(800, 600, "Quarfs!");
-    
+    float colours[] = {
+        1.0f, 0.0f,  0.0f,
+        0.0f, 1.0f,  0.0f,
+        0.0f, 0.0f,  1.0f
+    };
+
     //////////////////////////////////////////////
     // buffers to print
     unsigned int quad_vbo = 0;
@@ -51,14 +51,43 @@ int main () {
     glEnableVertexAttribArray (0); // optional, first buffer is active by default
     glEnableVertexAttribArray (1); // second buffer is not active by default
 
+    return vao;
+}
+
+int main () {
+
+    WindowManager window(800, 600, "Quarfs!");
+
+  //  //////////////////////////////////////////////
+  //  // setup render
+  //  Renderer& renderer = window.getRenderer();
+  //  renderer.compileShaders();
+  //  renderer.configureRender();
+
+    //////////////////////////////////////////////
+    // build the world
+    World w;
+
+    //////////////////////////////////////////////
+    // get a camera
+    Camera cam = window.getCamera(vec3(0.0,0.0,10.0),
+                                  vec3(0.0,1.0,0.0),
+                                  vec3(0.0,0.0,0.0));
+
+    unsigned dummy = dumm();
+
     ///////////////////////////////////////////////
     // draw loop
     while (!window.isFinish()) {
         window.setupFrame();
 
-        glBindVertexArray (vao);
-        // draw points 0-3 from the currently bound VAO with current in-use shader
-        glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
+        shotFrame(cam, w.getTree());
+    
+        std::cout << "=================================" << std::endl;
+
+
+  //  glBindVertexArray (dummy);
+  //  glDrawArrays (GL_TRIANGLE_STRIP, 0, 3);
 
         window.finishFrame();
     }

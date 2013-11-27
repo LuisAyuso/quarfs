@@ -6,6 +6,8 @@
 #define ONE_DEG_IN_RAD (2.0 * M_PI) / 360.0 // 0.017444444
 #define ONE_RAD_IN_DEG 57.2957795
 
+ #include <iostream>
+
 struct vec2;
 struct vec3;
 struct vec4;
@@ -14,6 +16,8 @@ struct versor;
 struct vec2 {
 	vec2 ();
 	vec2 (float x, float y);
+    float& operator[](int i);
+    float operator[](int i)const;
 	float v[2];
 };
 
@@ -46,6 +50,9 @@ struct vec3 {
 	//! because users expect this too
 	vec3& operator= (const vec3& rhs);
 	
+    float& operator[](int i);
+    float operator[](int i)const;
+
 	//! internal data
 	float v[3];
 };
@@ -55,6 +62,8 @@ struct vec4 {
 	vec4 (float x, float y, float z, float w);
 	vec4 (const vec2& vv, float z, float w);
 	vec4 (const vec3& vv, float w);
+    float& operator[](int i);
+    float operator[](int i)const;
 	float v[4];
 };
 
@@ -68,6 +77,9 @@ struct mat3 {
 				float d, float e, float f,
 				float g, float h, float i);
 	float m[9];
+    float& operator[](int i);
+    float operator[](int i)const;
+    operator float*();
 };
 
 /* stored like this:
@@ -84,6 +96,9 @@ struct mat4 {
 	vec4 operator* (const vec4& rhs);
 	mat4 operator* (const mat4& rhs);
 	mat4& operator= (const mat4& rhs);
+    operator float*();
+    float& operator[](int i);
+    float operator[](int i)const;
 	float m[16];
 };
 
@@ -96,11 +111,12 @@ struct versor {
 	float q[4];
 };
 
-void print (const vec2& v);
-void print (const vec3& v);
-void print (const vec4& v);
-void print (const mat3& m);
-void print (const mat4& m);
+std::ostream& operator << (std::ostream& out, const vec2& v);
+std::ostream& operator << (std::ostream& out, const vec3& v);
+std::ostream& operator << (std::ostream& out, const vec4& v);
+std::ostream& operator << (std::ostream& out, const mat3& v);
+std::ostream& operator << (std::ostream& out, const mat4& v);
+
 // vector functions
 float length (const vec3& v);
 float length2 (const vec3& v);
@@ -135,6 +151,5 @@ float dot (const versor& q, const versor& r);
 versor slerp (const versor& q, const versor& r);
 // stupid overloading wouldn't let me use const
 versor normalise (versor& q);
-void print (const versor& q);
 versor slerp (versor& q, versor& r, float t);
 #endif

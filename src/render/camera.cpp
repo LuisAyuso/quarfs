@@ -1,9 +1,8 @@
 #include "camera.h"
 
 
-Camera::Camera (const vec3& pos, const vec3& inclination, const vec3& lookAt, const mat4& perspectiveMatrix, int matrixBuffer)
-    : pos(pos), inclination(inclination), lookAt(lookAt), 
-      perspectiveMatrix(perspectiveMatrix), transformationMatrixBuffer(matrixBuffer) {
+Camera::Camera (const vec3& pos, const vec3& inclination, const vec3& lookAt, const Renderer& renderer)
+    : pos(pos), inclination(inclination), lookAt(lookAt), renderer(renderer){
 
     // build the right camera possition matrix
 

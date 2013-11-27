@@ -7,36 +7,17 @@
 #include <assert.h>
 #include <math.h>
 
-#include "utils/maths_funcs.h"
+#include "renderer.h"
+#include "utils/matrix.h"
 
 namespace {
-
-    const char* vertex_shader =
-        "#version 400\n"
-        "layout(location = 0) in vec3 vtx_pos;"
-        "layout(location = 1) in vec3 vtx_color;"
-        "uniform mat4 matrix;"
-        "out vec3 color;"
-        "void main () {"
-        "  color = vtx_color;"
-        "  gl_Position = matrix * vec4 (vtx_pos, 1.0);"
-        "}";
-
-    const char* fragment_shader =
-        "#version 400\n"
-        "in  vec3 color;"
-        "out vec4 frag_color;"
-        "void main () {"
-        "  frag_color = vec4 (color, 1.0);"
-        "}";
-
     void error_callback (int error, const char* description) {
         std::cout << "Error code [" << error << "] " << description << std::endl;
     }
 
     // keep track of window size for things like the viewport and the mouse cursor
-    int g_gl_width = 640;
-    int g_gl_height = 480;
+    int g_gl_width = 800;
+    int g_gl_height = 600;
 
     // a call-back function
     void window_size_callback (GLFWwindow* window, int width, int height) {
@@ -45,49 +26,11 @@ namespace {
 
         //persperctive changes go here
     }
-
-    bool is_compiled(unsigned shader){
-        int params = -1;
-        glGetShaderiv (shader, GL_COMPILE_STATUS, &params);
-        if (GL_TRUE != params) {
-            std::cout << " == shader compilation failed == " << std::endl;
-            int max_length = 2048;
-            int actual_length = 0;
-            char log[2048];
-            glGetShaderInfoLog (shader, max_length, &actual_length, log);
-            std::cout << log << std::endl;
-            return false; 
-        }
-        return true;
-    }
-
-    bool is_valid (unsigned prog) {
-        glValidateProgram (prog);
-        int params = -1;
-        glGetProgramiv (prog, GL_VALIDATE_STATUS, &params);
-        if (GL_TRUE != params) {
-            std::cout << " == shader program not valid == " << std::endl;
-            int max_length = 2048;
-            int actual_length = 0;
-            char log[2048];
-            glGetProgramInfoLog (prog, max_length, &actual_length, log);
-            std::cout << log << std::endl;
-            return false;
-        }
-        return true;
-    }
-
-    // http://antongerdelan.net/teaching/3dprog1/maths_cheat_sheet.pdf
-
-float matrix[] = {
-     1.0f, 0.0f, 0.0f, 0.0f, // first column
-     0.0f, 1.0f, 0.0f, 0.0f, // second column
-     0.0f, 0.0f, 1.0f, 0.0f, // third column
-     0.5f, 0.0f, 0.0f, 1.0f  // fourth column
-};
-
-
 } // anonimous namespace
+
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////
 
 WindowManager::WindowManager(unsigned w, unsigned h, const char* name){
 
@@ -96,7 +39,6 @@ WindowManager::WindowManager(unsigned w, unsigned h, const char* name){
         std::cerr << "ERROR: could not start GLFW3\n";
         throw -1;
     } 
-
 
     window = glfwCreateWindow (w, h, name, NULL, NULL);
     if (!window) {
@@ -109,6 +51,7 @@ WindowManager::WindowManager(unsigned w, unsigned h, const char* name){
     glfwSetErrorCallback (error_callback);
     glfwSetWindowSizeCallback (window, window_size_callback);
 
+    /////////////////////////////////////////////
     // start GLEW extension handler
     glewInit ();
 
@@ -123,83 +66,36 @@ WindowManager::WindowManager(unsigned w, unsigned h, const char* name){
     // antialiassing
     glfwWindowHint (GLFW_SAMPLES, 4);
 
+    /////////////////////////////////////////////
     // get version info
-    const GLubyte* renderer = glGetString (GL_RENDERER); // get renderer string
+    const GLubyte* rendererStr = glGetString (GL_RENDERER); // get renderer string
     const GLubyte* version = glGetString (GL_VERSION); // version as a string
-
-    std::cout << "Renderer: "  << renderer << std::endl;
+    std::cout << "Renderer: "  << rendererStr << std::endl;
     std::cout << "OpenGL version supported " <<  version << std::endl;
 
-    // tell GL to only draw onto a pixel if the shape is closer to the viewer
-    glEnable (GL_DEPTH_TEST); // enable depth-testing
-    glDepthFunc (GL_LESS); // depth-testing interprets a smaller value as "closer"
-
-    glEnable (GL_CULL_FACE); // cull face
-    glCullFace (GL_BACK); // cull back face
-    glFrontFace (GL_CW); // GL_CCW for counter clock-wise
-
     //////////////////////////////////////////////
-    // compile shaders
-    unsigned int vs = glCreateShader (GL_VERTEX_SHADER);
-    glShaderSource (vs, 1, &vertex_shader, NULL);
-    glCompileShader (vs);
-    assert(is_compiled(vs));
-    unsigned int fs = glCreateShader (GL_FRAGMENT_SHADER);
-    glShaderSource (fs, 1, &fragment_shader, NULL);
-    glCompileShader (fs);
-    assert(is_compiled(fs));
-
-    shader_program = glCreateProgram ();
-    glAttachShader (shader_program, fs);
-    glAttachShader (shader_program, vs);
-    glLinkProgram (shader_program);
-
-    assert(is_valid(shader_program));
-
-    int matrix_location = glGetUniformLocation (shader_program, "matrix");
-    glUseProgram (shader_program);
-    glUniformMatrix4fv (matrix_location, 1, GL_FALSE, matrix);
+    // initialize renderer
+    renderer.init();
 }
 
 WindowManager::~WindowManager(){
     // close GL context and any other GLFW resources
     glfwTerminate();
 }
-
+        
 void WindowManager::setupFrame(){
-
+    // measure fps
     update_fps_counter();
-
-    static float speed = 0.1;
-    static float last_position = 0.0f;
-    static double previous_seconds = glfwGetTime ();
-    double current_seconds = glfwGetTime ();
-    double elapsed_seconds = current_seconds - previous_seconds;
-    previous_seconds = current_seconds;
-    
-    // reverse direction when going to far left or right
-    if (fabs(last_position) > 1.0f) {
-        speed = -speed;
-    }
-    
-    // update the matrix
-    matrix[12] = elapsed_seconds * speed + last_position;
-    last_position = matrix[12];
-    int matrix_location = glGetUniformLocation (shader_program, "matrix");
-    glUseProgram (shader_program);
-    glUniformMatrix4fv (matrix_location, 1, GL_FALSE, matrix);
-              
-
-    // wipe the drawing surface clear
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glViewport (0, 0, g_gl_width, g_gl_height);
+    renderer.beginDraw();
+}
 
-    glUseProgram (shader_program);
+Camera WindowManager::getCamera(const vec3& pos, const vec3& inclination, const vec3& lookAt) const{
+    return Camera(pos, inclination, lookAt, renderer);
 }
 
 void WindowManager::finishFrame(){
     // update other events like input handling 
-    //
     glfwPollEvents ();
     // put the stuff we've been drawing onto the display
     glfwSwapBuffers (window);
@@ -230,6 +126,6 @@ void WindowManager::update_fps_counter(){
     frame_count++;
 }
 
-double WindowManager::getFrameRate (){
+double WindowManager::getFrameRate ()const{
     return fps;
 }

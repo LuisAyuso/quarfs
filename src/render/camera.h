@@ -1,30 +1,29 @@
 #pragma once
 
+#include "renderer.h"
 #include "utils/matrix.h"
 #include "world.h"
 
-
+#include <GL/glew.h> // include GLEW and new version of GL on Windows
 
 class Camera{
 
     vec3 pos, inclination, lookAt;
-    const mat4& perspectiveMatrix;
-    int transformationMatrixBuffer;
-    mat4 camMatrix;
+    const Renderer& renderer;
+
+    mat4 camMat;
 
 public:
-    Camera (const vec3& pos, const vec3& inclination, const vec3& lookAt, const mat4& perspectiveMatrix, int matrixBuffer);
+    Camera (const vec3& pos, const vec3& inclination, const vec3& lookAt, const Renderer& renderer);
     ~Camera();
 
     void move  (const vec3& pos);
     void rotate(const vec3& pos);
     void transform(const vec3& pos);
 
-
-    // we make friends, so we can draw stuff
+    // we make friends, so we can use the insides
 template <typename T>
 friend void shotFrame(const Camera& cam, const T& elem);
-
 };
 
 
@@ -48,11 +47,8 @@ template <typename T>
 void shotFrame(const Camera& cam, const T& elem){
     // retrieve possition and update transform matrix
     const vec3& pos = elem.getPos();
-    
-    // if new matrix, send to GPU
-    
-    // draw the object (this object, if is composed, will recursivelly call back)
-    elem.draw();
+    std::cout << "print: " << pos << std::endl;
 
-    // restore old matrix
+    cam.renderer.applyCorrection (cam.camMat, translate(pos));// getIdentity4()); // translate(pos));
+    elem.draw();
 }

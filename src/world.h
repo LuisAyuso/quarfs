@@ -5,7 +5,7 @@
 #include <iostream>
 #include <assert.h>
 
-#include "drawable_node.h"
+#include "cube.h"
 
 
 class TreeNode{
@@ -32,7 +32,6 @@ class TreeNode{
 
     friend std::ostream& operator<<(std::ostream& out, const TreeNode& tn);
 };
-std::ostream& operator<<(std::ostream& out, const TreeNode& tn);
 
 template <typename BASE, typename E>
 class DrawingVisitor {
@@ -56,6 +55,8 @@ class DrawingVisitor {
         }
 };
 
+
+std::ostream& operator<<(std::ostream& out, const TreeNode& tn);
 class World{
 
     TreeNode nodeTree;
@@ -66,6 +67,5 @@ public:
     ~World();
 
     bool update();
-    void draw() const;
-
+    const TreeNode& getTree() const { return nodeTree; }
 };
