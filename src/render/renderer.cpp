@@ -12,7 +12,7 @@ namespace {
         "out vec3 color;"
         "void main () {"
         "  color = vtx_color;"
-        "  gl_Position = modelMatrix * vec4 (vtx_pos, 1.0);"
+        "  gl_Position = modelMatrix *  vec4 (vtx_pos, 1.0);"
         "}";
 
     const char* fragment_shader =
@@ -58,7 +58,7 @@ namespace {
 
 
 Renderer::Renderer() 
-: perspectiveMatrix(getIdentity4()){
+: perspectiveMatrix(identity_mat4()){
 }
 
 Renderer::~Renderer(){
@@ -80,14 +80,19 @@ void Renderer::beginDraw()const{
     // setup Matrix
     int matrix_location = glGetUniformLocation (shader_program, "modelMatrix");
     glUseProgram (shader_program);
-    glUniformMatrix4fv (matrix_location, 1, GL_FALSE, getIdentity4());
+    glUniformMatrix4fv (matrix_location, 1, GL_FALSE, identity_mat4());
             //translate(vec3(-0.5f,0.0f,0.0f)));
     glUseProgram (shader_program);
 }
 
 void Renderer::applyCorrection (const mat4& camera, const mat4& transform) const{
     
-    mat4 matrix = transform; //transform*(camera*perspective);
+    mat4 matrix = camera*transform; //transform*(camera*perspective);
+
+   // std::cout << "transform" << std::endl <<  matrix << std::endl << std::endl;
+   // std::cout << "camera" << std::endl <<  camera << std::endl << std::endl;
+   // std::cout << "CxA" << std::endl <<  camera*transform << std::endl << std::endl;
+   // std::cout << "AxC" << std::endl <<  camera*transform << std::endl << std::endl;
 
     if (matrix != lastUsedMatrix){
         int matrix_location = glGetUniformLocation (shader_program, "modelMatrix");
@@ -124,6 +129,6 @@ void Renderer::configureRender(){
     glFrontFace (GL_CW); // GL_CCW for counter clock-wise
 
     // do some nasty matrix stuff and build a nice perspective one
-    perspectiveMatrix = getIdentity4();
+    perspectiveMatrix = identity_mat4();
 }
 

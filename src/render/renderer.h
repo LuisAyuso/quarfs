@@ -2,7 +2,7 @@
 
 #include <GL/glew.h> // include GLEW and new version of GL on Windows
 
-#include "utils/matrix.h"
+#include "utils/maths_funcs.h"
 
 
 

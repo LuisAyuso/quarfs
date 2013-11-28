@@ -1,25 +1,24 @@
 #pragma once
 
 #include "renderer.h"
-#include "utils/matrix.h"
+#include "utils/maths_funcs.h"
 #include "world.h"
 
 #include <GL/glew.h> // include GLEW and new version of GL on Windows
 
 class Camera{
 
-    vec3 pos, inclination, lookAt;
+    vec3 pos, up, lookAt;
     const Renderer& renderer;
 
     mat4 camMat;
 
 public:
-    Camera (const vec3& pos, const vec3& inclination, const vec3& lookAt, const Renderer& renderer);
+    Camera (const vec3& pos, const vec3& lookAt, const vec3& up, const Renderer& renderer);
     ~Camera();
 
-    void move  (const vec3& pos);
-    void rotate(const vec3& pos);
-    void transform(const vec3& pos);
+    void move  (const vec3& p);
+    void rotate(const vec3& r);
 
     // we make friends, so we can use the insides
 template <typename T>
@@ -47,8 +46,6 @@ template <typename T>
 void shotFrame(const Camera& cam, const T& elem){
     // retrieve possition and update transform matrix
     const vec3& pos = elem.getPos();
-    std::cout << "print: " << pos << std::endl;
-
-    cam.renderer.applyCorrection (cam.camMat, translate(pos));// getIdentity4()); // translate(pos));
+    cam.renderer.applyCorrection (cam.camMat, translate(identity_mat4(), pos));
     elem.draw();
 }

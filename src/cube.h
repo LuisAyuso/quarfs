@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include "utils/matrix.h"
+#include "utils/maths_funcs.h"
 
 struct DrawNode{
     vec3 pos;

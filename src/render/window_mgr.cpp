@@ -7,8 +7,8 @@
 #include <assert.h>
 #include <math.h>
 
+#include "utils/maths_funcs.h"
 #include "renderer.h"
-#include "utils/matrix.h"
 
 namespace {
     void error_callback (int error, const char* description) {
@@ -26,6 +26,22 @@ namespace {
 
         //persperctive changes go here
     }
+
+    double pMouseX;
+    double pMouseY;
+    double mouseX;
+    double mouseY;
+
+    bool mouseDown = false;
+    void mouseCallback(GLFWwindow *w, int b, int a) {
+        mouseDown = a==GLFW_PRESS;
+        // save press possition mouse
+        glfwGetCursorPos (w, &pMouseX, &pMouseY);
+    }
+
+
+    
+
 } // anonimous namespace
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -50,6 +66,7 @@ WindowManager::WindowManager(unsigned w, unsigned h, const char* name){
 
     glfwSetErrorCallback (error_callback);
     glfwSetWindowSizeCallback (window, window_size_callback);
+    glfwSetMouseButtonCallback (window, mouseCallback);
 
     /////////////////////////////////////////////
     // start GLEW extension handler
@@ -86,24 +103,34 @@ WindowManager::~WindowManager(){
 void WindowManager::setupFrame(){
     // measure fps
     update_fps_counter();
-    glViewport (0, 0, g_gl_width, g_gl_height);
-    renderer.beginDraw();
-}
-
-Camera WindowManager::getCamera(const vec3& pos, const vec3& inclination, const vec3& lookAt) const{
-    return Camera(pos, inclination, lookAt, renderer);
-}
-
-void WindowManager::finishFrame(){
     // update other events like input handling 
     glfwPollEvents ();
-    // put the stuff we've been drawing onto the display
-    glfwSwapBuffers (window);
+
+    glfwGetCursorPos (window, &mouseX, &mouseY);
+    //std::cout << "mouse: " << mouseX << "," << mouseY << std::endl;
+
 
     // ESC key handling
     if (GLFW_PRESS == glfwGetKey (window, GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose (window, 1);
     }
+    if (glfwGetKey (window, GLFW_KEY_UP)) { }
+    if (glfwGetKey (window, GLFW_KEY_DOWN)) { }
+    if (glfwGetKey (window, GLFW_KEY_LEFT)) { }
+    if (glfwGetKey (window, GLFW_KEY_RIGHT)) { }
+
+    glViewport (0, 0, g_gl_width, g_gl_height);
+    renderer.beginDraw();
+}
+
+Camera WindowManager::getCamera(const vec3& pos, const vec3& lookAt, const vec3& up) const{
+    return Camera(pos, lookAt, up, renderer);
+}
+
+void WindowManager::finishFrame(){
+    // put the stuff we've been drawing onto the display
+    glfwSwapBuffers (window);
+
 }
 
 bool WindowManager::isFinish() const{

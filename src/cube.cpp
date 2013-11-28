@@ -2,7 +2,7 @@
 #include <iostream> // include GLEW and new version of GL on Windows
 #include <GL/glew.h> // include GLEW and new version of GL on Windows
 
-#include "utils/matrix.h"
+#include "utils/maths_funcs.h"
 #include "cube.h"
 
 
@@ -56,6 +56,12 @@ unsigned int initializeCube(){
 
     // alocate in memory the vertex, then copy to gpu and forget them
     // if order changes, then the thing is not the same
+   // float points[] = {
+   //     0.0f, 0.0f,  0.0f,
+   //     0.0f, 1.0f,  0.0f,
+   //     1.0f, 0.0f,  0.0f,
+   //     1.0f, 1.0f,  0.0f
+   // };
     float points[] = {
         0.0f, 0.0f,  0.0f,
         0.0f, 0.5f,  0.0f,

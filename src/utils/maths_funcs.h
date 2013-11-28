@@ -30,23 +30,23 @@ struct vec3 {
 	//! create from truncated vec4
 	vec3 (const vec4& vv);
 	//! add vector to vector
-	vec3 operator+ (const vec3& rhs);
+	vec3 operator+ (const vec3& rhs)const;
 	//! add scalar to vector
-	vec3 operator+ (float rhs);
+	vec3 operator+ (float rhs)const;
 	//! because user's expect this too
 	vec3& operator+= (const vec3& rhs);
 	//! subtract vector from vector
-	vec3 operator- (const vec3& rhs);
+	vec3 operator- (const vec3& rhs)const;
 	//! add vector to vector
-	vec3 operator- (float rhs);
+	vec3 operator- (float rhs)const;
 	//! because users expect this too
 	vec3& operator-= (const vec3& rhs);
 	//! multiply with scalar
-	vec3 operator* (float rhs);
+	vec3 operator* (float rhs)const;
 	//! because users expect this too
 	vec3& operator*= (float rhs);
 	//! divide vector by scalar
-	vec3 operator/ (float rhs);
+	vec3 operator/ (float rhs)const;
 	//! because users expect this too
 	vec3& operator= (const vec3& rhs);
 	
@@ -89,12 +89,13 @@ struct mat3 {
 3 7 11 15*/
 struct mat4 {
 	mat4 ();
+    mat4(const mat4&);
 	mat4 (float a, float b, float c, float d,
 				float e, float f, float g, float h,
 				float i, float j, float k, float l,
 				float mm, float n, float o, float p);
-	vec4 operator* (const vec4& rhs);
-	mat4 operator* (const mat4& rhs);
+	vec4 operator* (const vec4& rhs)const;
+	mat4 operator* (const mat4& rhs)const;
 	mat4& operator= (const mat4& rhs);
     operator float*();
     float& operator[](int i);
@@ -104,10 +105,10 @@ struct mat4 {
 
 struct versor {
 	versor ();
-	versor operator/ (float rhs);
-	versor operator* (float rhs);
-	versor operator* (const versor& rhs);
-	versor operator+ (const versor& rhs);
+	versor operator/ (float rhs)const;
+	versor operator* (float rhs)const;
+	versor operator* (const versor& rhs)const;
+	versor operator+ (const versor& rhs)const;
 	float q[4];
 };
 
@@ -126,6 +127,7 @@ vec3 cross (const vec3& a, const vec3& b);
 float get_squared_dist (vec3 from, vec3 to);
 float direction_to_heading (vec3 d);
 vec3 heading_to_direction (float degrees);
+
 // matrix functions
 mat3 zero_mat3 ();
 mat3 identity_mat3 ();
@@ -134,21 +136,25 @@ mat4 identity_mat4 ();
 float determinant (const mat4& mm);
 mat4 inverse (const mat4& mm);
 mat4 transpose (const mat4& mm);
+
 // affine functions
 mat4 translate (const mat4& m, const vec3& v);
 mat4 rotate_x_deg (const mat4& m, float deg);
 mat4 rotate_y_deg (const mat4& m, float deg);
 mat4 rotate_z_deg (const mat4& m, float deg);
 mat4 scale (const mat4& m, const vec3& v);
+
 // camera functions
-mat4 look_at (const vec3& cam_pos, vec3 targ_pos, const vec3& up);
+mat4 look_at (const vec3& cam_pos, const vec3& targ_pos, const vec3& up);
 mat4 perspective (float fovy, float aspect, float near, float far);
+
 // quaternion functions
 versor quat_from_axis_rad (float radians, float x, float y, float z);
 versor quat_from_axis_deg (float degrees, float x, float y, float z);
 mat4 quat_to_mat4 (const versor& q);
 float dot (const versor& q, const versor& r);
 versor slerp (const versor& q, const versor& r);
+
 // stupid overloading wouldn't let me use const
 versor normalise (versor& q);
 versor slerp (versor& q, versor& r, float t);

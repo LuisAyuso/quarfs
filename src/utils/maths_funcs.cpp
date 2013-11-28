@@ -104,6 +104,26 @@ float mat3::operator[](int i) const{
 
 mat4::mat4 () {}
 
+mat4::mat4(const mat4& o)
+{
+	m[0]  = o.m[0];
+	m[1]  = o.m[1];
+	m[2]  = o.m[2];
+	m[3]  = o.m[3];
+	m[4]  = o.m[4];
+	m[5]  = o.m[5];
+	m[6]  = o.m[6];
+	m[7]  = o.m[7];
+	m[8]  = o.m[8];
+	m[9]  = o.m[9];
+	m[10] = o.m[10];
+	m[11] = o.m[11];
+	m[12] = o.m[12];
+	m[13] = o.m[13];
+	m[14] = o.m[14];
+	m[15] = o.m[15];
+}
+
 // note: entered in rows, but stored in columns
 mat4::mat4 (float a, float b, float c, float d,
 						float e, float f, float g, float h,
@@ -141,49 +161,28 @@ float mat4::operator[](int i) const{
 
 std::ostream& operator << (std::ostream& out, const vec2& v){
     out << "[" << v[0] << "," << v[1] << "]";
+    return out;
 }
 std::ostream& operator << (std::ostream& out, const vec3& v){
     out << "[" << v[0] << "," << v[1] <<  "," << v[2] << "]";
+    return out;
 }
 std::ostream& operator << (std::ostream& out, const vec4& v){
     out << "[" << v[0] << "," << v[1] <<  "," << v[2] << "," << v[3] << "]";
+    return out;
 }
 std::ostream& operator << (std::ostream& out, const mat3& v){
-    out << "[" << v[0] << "," << v[1] <<  "," << v[2] << "/"
-               << v[3] << "," << v[4] <<  "," << v[5] << "/"
+    out << "[" << v[0] << "," << v[1] <<  "," << v[2] << "]\n"
+               << v[3] << "," << v[4] <<  "," << v[5] << "]\n]"
                << v[6] << "," << v[7] <<  "," << v[8] << "]";
+    return out;
 }
 std::ostream& operator << (std::ostream& out, const mat4& v){
-    out << "[" << v[0] << "," << v[1] <<  "," << v[2] << "," << v[3] << "/"
-               << v[4] << "," << v[5] <<  "," << v[6] << "," << v[7] << "/"
-               << v[8] << "," << v[9] <<  "," << v[10]<< "," << v[11]<< "/"
-               << v[12]<< "," << v[13]<<  "," << v[14]<< "," << v[15]<< "]";
-}
-void print (const vec2& v) {
-	printf ("[%.2f, %.2f]\n", v.v[0], v.v[1]);
-}
-
-void print (const vec3& v) {
-	printf ("[%.2f, %.2f, %.2f]\n", v.v[0], v.v[1], v.v[2]);
-}
-
-void print (const vec4& v) {
-	printf ("[%.2f, %.2f, %.2f, %.2f]\n", v.v[0], v.v[1], v.v[2], v.v[3]);
-}
-
-void print (const mat3& m) {
-	printf("\n");
-	printf ("[%.2f][%.2f][%.2f]\n", m.m[0], m.m[3], m.m[6]);
-	printf ("[%.2f][%.2f][%.2f]\n", m.m[1], m.m[4], m.m[7]);
-	printf ("[%.2f][%.2f][%.2f]\n", m.m[2], m.m[5], m.m[8]);
-}
-
-void print (const mat4& m) {
-	printf("\n");
-	printf ("[%.2f][%.2f][%.2f][%.2f]\n", m.m[0], m.m[4], m.m[8], m.m[12]);
-	printf ("[%.2f][%.2f][%.2f][%.2f]\n", m.m[1], m.m[5], m.m[9], m.m[13]);
-	printf ("[%.2f][%.2f][%.2f][%.2f]\n", m.m[2], m.m[6], m.m[10], m.m[14]);
-	printf ("[%.2f][%.2f][%.2f][%.2f]\n", m.m[3], m.m[7], m.m[11], m.m[15]);
+    out << "[" << v[0] << "," << v[1] <<  "," << v[2] << "," << v[3] << "]\n"
+        << "[" << v[4] << "," << v[5] <<  "," << v[6] << "," << v[7] << "]\n"
+        << "[" << v[8] << "," << v[9] <<  "," << v[10]<< "," << v[11]<< "]\n"
+        << "[" << v[12]<< "," << v[13]<<  "," << v[14]<< "," << v[15]<< "]";
+    return out;
 }
 
 /*---------------------------------VECTOR FUNCTIONS-----------------------------------*/
@@ -196,19 +195,19 @@ float length2 (const vec3& v) {
 	return v.v[0] * v.v[0] + v.v[1] * v.v[1] + v.v[2] * v.v[2];
 }
 
-vec3 normalise (const vec3& v) {
-	vec3 vb;
+vec3 normalise (const vec3& v){
 	float l = length (v);
 	if (0.0f == l) {
 		return vec3 (0.0f, 0.0f, 0.0f);
 	}
+	vec3 vb;
 	vb.v[0] = v.v[0] / l;
 	vb.v[1] = v.v[1] / l;
 	vb.v[2] = v.v[2] / l;
 	return vb;
 }
 
-vec3 vec3::operator+ (const vec3& rhs) {
+vec3 vec3::operator+ (const vec3& rhs)const {
 	vec3 vc;
 	vc.v[0] = v[0] + rhs.v[0];
 	vc.v[1] = v[1] + rhs.v[1];
@@ -223,7 +222,7 @@ vec3& vec3::operator+= (const vec3& rhs) {
 	return *this; // return self
 }
 
-vec3 vec3::operator- (const vec3& rhs) {
+vec3 vec3::operator- (const vec3& rhs) const{
 	vec3 vc;
 	vc.v[0] = v[0] - rhs.v[0];
 	vc.v[1] = v[1] - rhs.v[1];
@@ -238,7 +237,7 @@ vec3& vec3::operator-= (const vec3& rhs) {
 	return *this;
 }
 
-vec3 vec3::operator+ (float rhs) {
+vec3 vec3::operator+ (float rhs)const {
 	vec3 vc;
 	vc.v[0] = v[0] + rhs;
 	vc.v[1] = v[1] + rhs;
@@ -246,7 +245,7 @@ vec3 vec3::operator+ (float rhs) {
 	return vc;
 }
 
-vec3 vec3::operator- (float rhs) {
+vec3 vec3::operator- (float rhs) const{
 	vec3 vc;
 	vc.v[0] = v[0] - rhs;
 	vc.v[1] = v[1] - rhs;
@@ -254,7 +253,7 @@ vec3 vec3::operator- (float rhs) {
 	return vc;
 }
 
-vec3 vec3::operator* (float rhs) {
+vec3 vec3::operator* (float rhs)const {
 	vec3 vc;
 	vc.v[0] = v[0] * rhs;
 	vc.v[1] = v[1] * rhs;
@@ -262,7 +261,7 @@ vec3 vec3::operator* (float rhs) {
 	return vc;
 }
 
-vec3 vec3::operator/ (float rhs) {
+vec3 vec3::operator/ (float rhs) const{
 	vec3 vc;
 	vc.v[0] = v[0] / rhs;
 	vc.v[1] = v[1] / rhs;
@@ -358,7 +357,7 @@ mat4 identity_mat4 () {
 3 7 11 15
 */
 
-vec4 mat4::operator* (const vec4& rhs) {
+vec4 mat4::operator* (const vec4& rhs) const{
 	float x = m[0] * rhs.v[0] + m[4] * rhs.v[1] + m[8] * rhs.v[2] + m[12] * rhs.v[3]; // 0x + 4y + 8z + 12w
 	float y = m[1] * rhs.v[0] + m[5] * rhs.v[1] + m[9] * rhs.v[2] + m[13] * rhs.v[3]; // 1x + 5y + 9z + 13w
 	float z = m[2] * rhs.v[0] + m[6] * rhs.v[1] + m[10] * rhs.v[2] + m[14] * rhs.v[3]; // 2x + 6y + 10z + 14w
@@ -381,7 +380,7 @@ mat4 mat4::operator* (const mat4& rhs) {
 	}
 	return r;
 }*/
-mat4 mat4::operator* (const mat4& rhs) {
+mat4 mat4::operator* (const mat4& rhs) const{
 	mat4 r = zero_mat4 ();
 	int r_index = 0;
 	for (int col = 0; col < 4; col++) {
@@ -532,7 +531,7 @@ mat4 scale (const mat4& m, const vec3& v) {
 /*------------------------------3D SCENE MATRIX FUNCTIONS-----------------------------*/
 
 // returns a view matrix using the opengl lookAt style. COLUMN ORDER.
-mat4 look_at (const vec3& cam_pos, vec3 targ_pos, const vec3& up) {
+mat4 look_at (const vec3& cam_pos, const vec3& targ_pos, const vec3& up) {
 	// inverse translation
 	mat4 p = identity_mat4 ();
 	p = translate (p, vec3 (-cam_pos.v[0], -cam_pos.v[1], -cam_pos.v[2]));
@@ -545,16 +544,17 @@ mat4 look_at (const vec3& cam_pos, vec3 targ_pos, const vec3& up) {
 	// real up vector
 	vec3 u = normalise (cross (r, f));
 	mat4 ori = identity_mat4 ();
-	ori.m[0] = r.v[0];
-	ori.m[4] = r.v[1];
-	ori.m[8] = r.v[2];
-	ori.m[1] = u.v[0];
-	ori.m[5] = u.v[1];
-	ori.m[9] = u.v[2];
-	ori.m[2] = -f.v[0];
-	ori.m[6] = -f.v[1];
-	ori.m[10] = -f.v[2];
-	
+
+    ori.m[0] = r.v[0];
+    ori.m[4] = r.v[1];
+    ori.m[8] = r.v[2];
+    ori.m[1] = u.v[0];
+    ori.m[5] = u.v[1];
+    ori.m[9] = u.v[2];
+    ori.m[2] = -f.v[0];
+    ori.m[6] = -f.v[1];
+    ori.m[10] = -f.v[2];
+
 	return ori * p;//p * ori;
 }
 
@@ -596,7 +596,7 @@ mat4 perspective (float fovy, float aspect, float near, float far) {
 /*------------------------------HAMILTON IN DA HOUSE!-----------------------------*/
 versor::versor () { }
 
-versor versor::operator/ (float rhs) {
+versor versor::operator/ (float rhs) const{
 	versor result;
 	result.q[0] = q[0] / rhs;
 	result.q[1] = q[1] / rhs;
@@ -605,7 +605,7 @@ versor versor::operator/ (float rhs) {
 	return result;
 }
 
-versor versor::operator* (float rhs) {
+versor versor::operator* (float rhs) const{
 	versor result;
 	result.q[0] = q[0] * rhs;
 	result.q[1] = q[1] * rhs;
@@ -618,7 +618,7 @@ void print (const versor& q) {
 	printf ("[%.2f ,%.2f, %.2f, %.2f]\n", q.q[0], q.q[1], q.q[2], q.q[3]);
 }
 
-versor versor::operator* (const versor& rhs) {
+versor versor::operator* (const versor& rhs) const{
 	versor result;
 	result.q[0] = rhs.q[0] * q[0] - rhs.q[1] * q[1] - rhs.q[2] * q[2] - rhs.q[3] * q[3];
 	result.q[1] = rhs.q[0] * q[1] + rhs.q[1] * q[0] - rhs.q[2] * q[3] + rhs.q[3] * q[2];
@@ -628,7 +628,7 @@ versor versor::operator* (const versor& rhs) {
 	return normalise (result);
 }
 
-versor versor::operator+ (const versor& rhs) {
+versor versor::operator+ (const versor& rhs) const{
 	versor result;
 	result.q[0] = rhs.q[0] + q[0];
 	result.q[1] = rhs.q[1] + q[1];

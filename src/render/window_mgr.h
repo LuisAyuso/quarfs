@@ -3,7 +3,6 @@
 
 #include "camera.h"
 #include "renderer.h"
-#include "utils/matrix.h"
 
 // forward declaration
 class GLFWwindow;
@@ -24,11 +23,11 @@ class WindowManager{
         ~WindowManager();
 
         Renderer& getRenderer();
+        Camera getCamera(const vec3& pos, const vec3& inclination, const vec3& lookAt) const;
 
         // in loop functionality
         void setupFrame();
         void finishFrame();
-        Camera getCamera(const vec3& pos, const vec3& inclination, const vec3& lookAt) const;
 
         // query state
         bool isFinish()const;

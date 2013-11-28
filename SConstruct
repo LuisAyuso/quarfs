@@ -15,7 +15,6 @@ mainSources = ['build/main.cpp',
                'build/world.cpp',
                'build/cube.cpp',
                'build/utils/maths_funcs.cpp',
-               'build/utils/matrix.cpp',
                'build/render/camera.cpp',
                'build/render/renderer.cpp',
                'build/render/window_mgr.cpp']
