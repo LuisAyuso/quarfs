@@ -1,9 +1,7 @@
 #pragma once
 
 #include <GL/glew.h> // include GLEW and new version of GL on Windows
-
-#include "utils/maths_funcs.h"
-
+#include <glm/glm.hpp>
 
 
 
@@ -13,8 +11,8 @@ class Renderer{
     unsigned shader_program;
     
     // other objects
-    mat4 perspectiveMatrix;
-    mutable mat4 lastUsedMatrix;
+    glm::mat4 perspectiveMatrix;
+    mutable glm::mat4 lastUsedMatrix;
 
     public:
 
@@ -38,7 +36,7 @@ class Renderer{
          * performs a transformation int the matrix
          *  acording to the formula:  Perspective*camera*transform*
          */
-        void applyCorrection (const mat4& camera, const mat4& transform) const;
+        void applyCorrection (const glm::mat4& camera, const glm::mat4& transform) const;
 
 
     private:

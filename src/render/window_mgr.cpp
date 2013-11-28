@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <math.h>
 
-#include "utils/maths_funcs.h"
+#include <glm/glm.hpp>
 #include "renderer.h"
 
 namespace {
@@ -123,7 +123,7 @@ void WindowManager::setupFrame(){
     renderer.beginDraw();
 }
 
-Camera WindowManager::getCamera(const vec3& pos, const vec3& lookAt, const vec3& up) const{
+Camera WindowManager::getCamera(const glm::vec3& pos, const glm::vec3& lookAt, const glm::vec3& up) const{
     return Camera(pos, lookAt, up, renderer);
 }
 

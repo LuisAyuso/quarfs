@@ -23,7 +23,7 @@ class WindowManager{
         ~WindowManager();
 
         Renderer& getRenderer();
-        Camera getCamera(const vec3& pos, const vec3& inclination, const vec3& lookAt) const;
+        Camera getCamera(const glm::vec3& pos, const glm::vec3& inclination, const glm::vec3& lookAt) const;
 
         // in loop functionality
         void setupFrame();

@@ -4,9 +4,10 @@
 
 #include <iostream>
 
+#include <glm/glm.hpp>
 #include "render/window_mgr.h"
-#include "utils/maths_funcs.h"
-#include "world.h"
+#include "world/world.h"
+
 
 unsigned int dumm(){
 
@@ -70,9 +71,9 @@ int main () {
 
     //////////////////////////////////////////////
     // get a camera
-    Camera cam = window.getCamera(vec3(0.5, 0.0, 0.0),
-                                  vec3(0.5, 0.0, -10.0),
-                                  vec3(0.0, 1.0,0.0));
+    Camera cam = window.getCamera(glm::vec3(0.5, 0.0, 0.0),
+                                  glm::vec3(0.5, 0.0, -10.0),
+                                  glm::vec3(0.0, 1.0,0.0));
 
     unsigned dummy = dumm();
 

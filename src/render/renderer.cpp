@@ -1,6 +1,10 @@
-# include "renderer.h"
+#include <iostream>
 #include <assert.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "renderer.h"
 
 namespace {
 
@@ -58,7 +62,7 @@ namespace {
 
 
 Renderer::Renderer() 
-: perspectiveMatrix(identity_mat4()){
+: perspectiveMatrix(glm::mat4()){
 }
 
 Renderer::~Renderer(){
@@ -80,14 +84,13 @@ void Renderer::beginDraw()const{
     // setup Matrix
     int matrix_location = glGetUniformLocation (shader_program, "modelMatrix");
     glUseProgram (shader_program);
-    glUniformMatrix4fv (matrix_location, 1, GL_FALSE, identity_mat4());
-            //translate(vec3(-0.5f,0.0f,0.0f)));
+    glUniformMatrix4fv (matrix_location, 1, GL_FALSE,  glm::value_ptr(glm::mat4()));
     glUseProgram (shader_program);
 }
 
-void Renderer::applyCorrection (const mat4& camera, const mat4& transform) const{
+void Renderer::applyCorrection (const glm::mat4& camera, const glm::mat4& transform) const{
     
-    mat4 matrix = camera*transform; //transform*(camera*perspective);
+    glm::mat4 matrix = perspectiveMatrix*camera*transform; //transform*(camera*perspective);
 
    // std::cout << "transform" << std::endl <<  matrix << std::endl << std::endl;
    // std::cout << "camera" << std::endl <<  camera << std::endl << std::endl;
@@ -97,7 +100,7 @@ void Renderer::applyCorrection (const mat4& camera, const mat4& transform) const
     if (matrix != lastUsedMatrix){
         int matrix_location = glGetUniformLocation (shader_program, "modelMatrix");
         glUseProgram (shader_program);
-        glUniformMatrix4fv (matrix_location, 1, GL_FALSE, matrix);
+        glUniformMatrix4fv (matrix_location, 1, GL_FALSE, glm::value_ptr(matrix));
     }
 }
 
@@ -129,6 +132,6 @@ void Renderer::configureRender(){
     glFrontFace (GL_CW); // GL_CCW for counter clock-wise
 
     // do some nasty matrix stuff and build a nice perspective one
-    perspectiveMatrix = identity_mat4();
+    perspectiveMatrix = glm::mat4();
 }
 
