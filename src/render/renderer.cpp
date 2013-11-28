@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "renderer.h"
 
@@ -12,11 +13,11 @@ namespace {
         "#version 400\n"
         "layout(location = 0) in vec3 vtx_pos;"
         "layout(location = 1) in vec3 vtx_color;"
-        "uniform mat4 modelMatrix;"
+        "uniform mat4 MPV;"
         "out vec3 color;"
         "void main () {"
         "  color = vtx_color;"
-        "  gl_Position = modelMatrix *  vec4 (vtx_pos, 1.0);"
+        "  gl_Position =  MPV * vec4 (vtx_pos, 1.0);"
         "}";
 
     const char* fragment_shader =
@@ -62,19 +63,20 @@ namespace {
 
 
 Renderer::Renderer() 
-: perspectiveMatrix(glm::mat4()){
+: projection(glm::mat4()){
 }
 
 Renderer::~Renderer(){
     // clean up renders?
 }
 
-void Renderer::init(){
+void Renderer::init(float w, float h){
     compileShaders();
-    configureRender();
+    configureRender(w, h);
 }
 
-void Renderer::setPerspective (float  fovy,  float  aspect,  float  zNear,  float  zFar){
+void Renderer::setPerspective (float w, float h){
+    projection = glm::perspective(45.0f, w / h, 0.1f, 100.0f);
 }
 
 void Renderer::beginDraw()const{
@@ -82,26 +84,20 @@ void Renderer::beginDraw()const{
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // setup Matrix
-    int matrix_location = glGetUniformLocation (shader_program, "modelMatrix");
+    int matrix_location = glGetUniformLocation (shader_program, "MPV");
     glUseProgram (shader_program);
     glUniformMatrix4fv (matrix_location, 1, GL_FALSE,  glm::value_ptr(glm::mat4()));
     glUseProgram (shader_program);
 }
 
-void Renderer::applyCorrection (const glm::mat4& camera, const glm::mat4& transform) const{
-    
-    glm::mat4 matrix = perspectiveMatrix*camera*transform; //transform*(camera*perspective);
+void Renderer::applyCorrection (const glm::mat4& view, const glm::vec3& pos) const{
 
-   // std::cout << "transform" << std::endl <<  matrix << std::endl << std::endl;
-   // std::cout << "camera" << std::endl <<  camera << std::endl << std::endl;
-   // std::cout << "CxA" << std::endl <<  camera*transform << std::endl << std::endl;
-   // std::cout << "AxC" << std::endl <<  camera*transform << std::endl << std::endl;
+    glm::mat4 model  = glm::translate(glm::mat4(), pos);
+    glm::mat4 MVP    = projection * view * model; 
 
-    if (matrix != lastUsedMatrix){
-        int matrix_location = glGetUniformLocation (shader_program, "modelMatrix");
-        glUseProgram (shader_program);
-        glUniformMatrix4fv (matrix_location, 1, GL_FALSE, glm::value_ptr(matrix));
-    }
+    int matrix_location = glGetUniformLocation (shader_program, "MPV");
+    glUseProgram (shader_program);
+    glUniformMatrix4fv (matrix_location, 1, GL_FALSE, glm::value_ptr(MVP));
 }
 
 
@@ -122,7 +118,7 @@ void Renderer::compileShaders(){
     assert(is_valid(shader_program));
 }
 
-void Renderer::configureRender(){
+void Renderer::configureRender(float w, float h){
     // tell GL to only draw onto a pixel if the shape is closer to the viewer
     glEnable (GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc (GL_LESS); // depth-testing interprets a smaller value as "closer"
@@ -131,7 +127,6 @@ void Renderer::configureRender(){
     glCullFace (GL_BACK); // cull back face
     glFrontFace (GL_CW); // GL_CCW for counter clock-wise
 
-    // do some nasty matrix stuff and build a nice perspective one
-    perspectiveMatrix = glm::mat4();
+    projection = glm::perspective(45.0f, w / h, 0.1f, 100.0f);
 }
 

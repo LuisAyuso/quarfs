@@ -48,6 +48,6 @@ template <typename T>
 void shotFrame(const Camera& cam, const T& elem){
     // retrieve possition and update transform matrix
     const glm::vec3& pos = elem.getPos();
-    cam.renderer.applyCorrection (cam.camMat, glm::translate(glm::mat4(), pos));
+    cam.renderer.applyCorrection (cam.camMat, pos);
     elem.draw();
 }

@@ -11,14 +11,14 @@
 
 unsigned int dumm(){
 
-    std::cout << "alocate the cube! " << std::endl;
+    std::cout << "alocate the dummy! " << std::endl;
 
     // alocate in memory the vertex, then copy to gpu and forget them
     // if order changes, then the thing is not the same
     float points[] = {
-        -0.5f, 0.0f,  0.0f,
-        .0f, 0.5f,  0.0f,
-        .5f, 0.0f,  0.0f
+         -1.0f, -1.0f, 0.0f,
+          1.0f, -1.0f, 0.0f,
+          0.0f,  1.0f, 0.0f,
     };
 
     float colours[] = {
@@ -32,12 +32,12 @@ unsigned int dumm(){
     unsigned int quad_vbo = 0;
     glGenBuffers (1, &quad_vbo);
     glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
-    glBufferData (GL_ARRAY_BUFFER, 3*4 * sizeof (float), points, GL_STATIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, 3*3 * sizeof (float), points, GL_STATIC_DRAW);
 
     unsigned int color_vbo = 0;
     glGenBuffers (1, &color_vbo);
     glBindBuffer (GL_ARRAY_BUFFER, color_vbo);
-    glBufferData (GL_ARRAY_BUFFER, 3*4 * sizeof (float), colours, GL_STATIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, 3*3* sizeof (float), colours, GL_STATIC_DRAW);
 
     unsigned int vao = 0;
     glGenVertexArrays (1, &vao);
@@ -71,11 +71,21 @@ int main () {
 
     //////////////////////////////////////////////
     // get a camera
-    Camera cam = window.getCamera(glm::vec3(0.5, 0.0, 0.0),
-                                  glm::vec3(0.5, 0.0, -10.0),
+    Camera cam = window.getCamera(glm::vec3(4,3,3),
+                                  glm::vec3(0,0,0), // and looks at the origin
                                   glm::vec3(0.0, 1.0,0.0));
 
-    unsigned dummy = dumm();
+    ///////////////////////////////////////////////
+    // dummy
+    struct A{
+        unsigned vao;
+        A():  vao (dumm()) {} 
+        glm::vec3 getPos() const {return glm::vec3(-1, 0, 0); }
+        void draw()const {
+            glBindVertexArray (vao);
+            glDrawArrays (GL_TRIANGLE_STRIP, 0, 3);
+        }
+    } dummy;
 
     ///////////////////////////////////////////////
     // draw loop
@@ -83,12 +93,9 @@ int main () {
         window.setupFrame();
 
         shotFrame(cam, w.getTree());
-
-  //  glBindVertexArray (dummy);
-  //  glDrawArrays (GL_TRIANGLE_STRIP, 0, 3);
+     //   shotFrame(cam, dummy);
 
         window.finishFrame();
-        //assert(false);
     }
 
     return 0;

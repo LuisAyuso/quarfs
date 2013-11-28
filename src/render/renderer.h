@@ -11,7 +11,7 @@ class Renderer{
     unsigned shader_program;
     
     // other objects
-    glm::mat4 perspectiveMatrix;
+    glm::mat4 projection;
     mutable glm::mat4 lastUsedMatrix;
 
     public:
@@ -24,23 +24,20 @@ class Renderer{
         /**
          * dont execute the initialization until context is ready
          */
-        void init();
+        void init(float w, float h);
 
-        /**
-         * just like the old gluprespective
-         */
-        void setPerspective (float  fovy,  float  aspect,  float  zNear,  float  zFar);
+        void setPerspective (float w, float h);
         
         void beginDraw()const;
         /**
          * performs a transformation int the matrix
          *  acording to the formula:  Perspective*camera*transform*
          */
-        void applyCorrection (const glm::mat4& camera, const glm::mat4& transform) const;
+        void applyCorrection (const glm::mat4& camera, const glm::vec3& pos) const;
 
+        void configureRender(float w, float h);
 
     private:
         // setup
         void compileShaders();
-        void configureRender();
 };
