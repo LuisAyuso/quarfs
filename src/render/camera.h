@@ -25,7 +25,7 @@ public:
     void keyDown();
     void keyLeft();
     void keyRight();
-    void mouseDiff(double x, double y);
+    void mouseDiff(float x, float y);
 
 private:
     void update();

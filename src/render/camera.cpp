@@ -1,5 +1,6 @@
 #include "camera.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/rotate_vector.hpp>
 
 
 Camera::Camera (const glm::vec3& pos, const glm::vec3& lookAt, const glm::vec3& up, Renderer& renderer)
@@ -14,6 +15,8 @@ void Camera::update(){
 }
 
 void Camera::keyUp(){
+    glm::vec3 to = lookAt-pos;
+    to = glm::normalize(to);
     pos.y += 0.1;
     lookAt.y += 0.1;
     update();
@@ -33,5 +36,15 @@ void Camera::keyLeft(){
     lookAt.x -= 0.1;
     update();
 }
-void Camera::mouseDiff(double x, double y){
+void Camera::mouseDiff(float x, float y){
+
+    glm::vec3 to = lookAt-pos;
+    to = glm::normalize(to);
+    to = glm::rotateX(to, y);
+    to = glm::rotateY(to, x);
+
+    lookAt = to+pos;
+    update();
+
+   // std::cout << x << "," << y << std::endl;
 }

@@ -8,5 +8,5 @@ struct InputListener {
 
     virtual void spacebar(){}
 
-    virtual void mouseDiff(double x, double y) {}
+    virtual void mouseDiff(float x, float y) {}
 };

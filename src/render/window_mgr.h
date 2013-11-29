@@ -21,6 +21,9 @@ class WindowManager{
 
     std::vector<InputListener*> inputListeners;
 
+    double mouseX, lastmX;
+    double mouseY, lastmY;
+
     public:
         WindowManager(unsigned w, unsigned h, const char* name);
         WindowManager(const WindowManager& ) = delete;

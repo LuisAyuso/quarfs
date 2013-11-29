@@ -27,16 +27,11 @@ namespace {
         //persperctive changes go here
     }
 
-    double pMouseX;
-    double pMouseY;
-    double mouseX;
-    double mouseY;
 
     bool mouseDown = false;
     void mouseCallback(GLFWwindow *w, int b, int a) {
         mouseDown = a==GLFW_PRESS;
         // save press possition mouse
-        glfwGetCursorPos (w, &pMouseX, &pMouseY);
     }
 
 } // anonimous namespace
@@ -87,6 +82,13 @@ WindowManager::WindowManager(unsigned w, unsigned h, const char* name){
     std::cout << "Renderer: "  << rendererStr << std::endl;
     std::cout << "OpenGL version supported " <<  version << std::endl;
 
+
+    //////////////////////////////////////////////
+    // mouse
+    glfwGetCursorPos (window, &mouseX, &mouseY);
+    lastmX = mouseX;
+    lastmY = mouseY;
+
     //////////////////////////////////////////////
     // initialize renderer
     renderer.init(w,h);
@@ -106,7 +108,6 @@ void WindowManager::setupFrame(){
     glfwGetCursorPos (window, &mouseX, &mouseY);
     //std::cout << "mouse: " << mouseX << "," << mouseY << std::endl;
 
-
     // ESC key handling
     if (GLFW_PRESS == glfwGetKey (window, GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose (window, 1);
@@ -115,6 +116,10 @@ void WindowManager::setupFrame(){
     if (glfwGetKey (window, GLFW_KEY_DOWN))  { for(auto i : inputListeners) i->keyDown();}
     if (glfwGetKey (window, GLFW_KEY_LEFT))  { for(auto i : inputListeners) i->keyLeft();}
     if (glfwGetKey (window, GLFW_KEY_RIGHT)) { for(auto i : inputListeners) i->keyRight();}
+    if (mouseDown){ for(auto i : inputListeners) i->mouseDiff((lastmX-mouseX)/10.0, (lastmY-mouseY)/10.); }
+    lastmX=mouseX; 
+    lastmY=mouseY;
+
 
     static int oldW, oldH;
     if (oldW !=  g_gl_width || oldH != g_gl_height){

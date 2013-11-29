@@ -6,6 +6,9 @@
 
 
 namespace {
+
+    unsigned int initializeCube(){
+    std::cout << "alocate the cube! " << std::endl;
     float points[] = {
        -0.5f,-0.5f,-0.5f,
        -0.5f, 0.5f,-0.5f,
@@ -19,18 +22,17 @@ namespace {
     };
 
     float colours[] = {
-        1.0f, 0.0f,  0.0f,
-        1.0f, 0.0f,  0.0f,
-        1.0f, 0.0f,  0.0f,
-        1.0f, 0.0f,  0.0f,
+        159.0/255.0,182.0/255.0,205.0/255.0,
+        159.0/255.0,182.0/255.0,205.0/255.0,
+        159.0/255.0,182.0/255.0,205.0/255.0,
+        159.0/255.0,182.0/255.0,205.0/255.0,
 
-        0.0f, 1.0f,  0.0f,
-        0.0f, 1.0f,  0.0f,
-        0.0f, 1.0f,  0.0f,
-        0.0f, 1.0f,  0.0f,
+        159.0/255.0,182.0/255.0,205.0/255.0,
+        159.0/255.0,182.0/255.0,205.0/255.0,
+        159.0/255.0,182.0/255.0,205.0/255.0,
+        159.0/255.0,182.0/255.0,205.0/255.0,
     };
 
-    unsigned dots = 36;
     unsigned indexes[]{
         // front
         0,1,2,  
@@ -51,14 +53,7 @@ namespace {
 
         1,5,2,
         2,5,6
-
-
     };
-
-    unsigned int initializeCube(){
-
-    std::cout << "alocate the cube! " << std::endl;
-
 
     // alocate in memory the vertex, then copy to gpu and forget them
     // if order changes, then the thing is not the same
@@ -129,7 +124,6 @@ std::ostream& operator<<(std::ostream& out, const DrawNode& dn){
 
 void DrawNode::draw ()const {
     glBindVertexArray (vao);
-    //glDrawArrays (GL_TRIANGLE_STRIP, 0, 4);
-    glDrawElements (GL_TRIANGLES, dots, GL_UNSIGNED_INT, 0);
+    glDrawElements (GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
     glBindVertexArray (0);
 }
