@@ -2,25 +2,33 @@
 
 #include "render/renderer.h"
 #include "world/world.h"
+#include "input/listener.h"
 
 #include <GL/glew.h> // include GLEW and new version of GL on Windows
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 
-class Camera{
+class Camera : public InputListener{
 
     glm::vec3 pos, up, lookAt;
-    const Renderer& renderer;
+    Renderer& renderer;
 
     glm::mat4 camMat;
 
 public:
-    Camera (const glm::vec3& pos, const glm::vec3& lookAt, const glm::vec3& up, const Renderer& renderer);
+    Camera (const glm::vec3& pos, const glm::vec3& lookAt, const glm::vec3& up, Renderer& renderer);
     ~Camera();
 
-    void move  (const glm::vec3& p);
-    void rotate(const glm::vec3& r);
+    // from input listener
+    void keyUp();
+    void keyDown();
+    void keyLeft();
+    void keyRight();
+    void mouseDiff(double x, double y);
+
+private:
+    void update();
 
     // we make friends, so we can use the insides
 template <typename T>
@@ -33,6 +41,9 @@ void shotFrame(const Camera&, const T&);
 
 template<>
 inline void shotFrame(const Camera& cam, const TreeNode& tree) {
+
+    cam.renderer.updateCamera(cam.camMat);
+
     struct DrawVisitor : public DrawingVisitor <DrawVisitor, DrawNode>{
         const Camera& cam;
         DrawVisitor(const Camera& cam) : cam(cam) {}
@@ -48,6 +59,6 @@ template <typename T>
 void shotFrame(const Camera& cam, const T& elem){
     // retrieve possition and update transform matrix
     const glm::vec3& pos = elem.getPos();
-    cam.renderer.applyCorrection (cam.camMat, pos);
+    cam.renderer.applyCorrection (pos);
     elem.draw();
 }

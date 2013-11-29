@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 
 
-
 class Renderer{
 
     // shaders
@@ -12,7 +11,7 @@ class Renderer{
     
     // other objects
     glm::mat4 projection;
-    mutable glm::mat4 lastUsedMatrix;
+    glm::mat4 camera;
 
     public:
 
@@ -29,11 +28,14 @@ class Renderer{
         void setPerspective (float w, float h);
         
         void beginDraw()const;
+
+        void updateCamera (const glm::mat4& camera);
+
         /**
          * performs a transformation int the matrix
          *  acording to the formula:  Perspective*camera*transform*
          */
-        void applyCorrection (const glm::mat4& camera, const glm::vec3& pos) const;
+        void applyCorrection (const glm::vec3& pos);
 
         void configureRender(float w, float h);
 

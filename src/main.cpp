@@ -74,6 +74,7 @@ int main () {
     Camera cam = window.getCamera(glm::vec3(4,3,3),
                                   glm::vec3(0,0,0), // and looks at the origin
                                   glm::vec3(0.0, 1.0,0.0));
+    window.registerInputListener(&cam);
 
     ///////////////////////////////////////////////
     // dummy

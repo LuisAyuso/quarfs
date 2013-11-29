@@ -33,15 +33,11 @@ namespace {
     double mouseY;
 
     bool mouseDown = false;
-    bool mouseClick = false;
     void mouseCallback(GLFWwindow *w, int b, int a) {
         mouseDown = a==GLFW_PRESS;
         // save press possition mouse
         glfwGetCursorPos (w, &pMouseX, &pMouseY);
     }
-
-
-    
 
 } // anonimous namespace
 
@@ -111,17 +107,14 @@ void WindowManager::setupFrame(){
     //std::cout << "mouse: " << mouseX << "," << mouseY << std::endl;
 
 
-    if (mouseClick ){
-    }
-
     // ESC key handling
     if (GLFW_PRESS == glfwGetKey (window, GLFW_KEY_ESCAPE)) {
         glfwSetWindowShouldClose (window, 1);
     }
-    if (glfwGetKey (window, GLFW_KEY_UP)) { }
-    if (glfwGetKey (window, GLFW_KEY_DOWN)) { }
-    if (glfwGetKey (window, GLFW_KEY_LEFT)) { }
-    if (glfwGetKey (window, GLFW_KEY_RIGHT)) { }
+    if (glfwGetKey (window, GLFW_KEY_UP))    { for(auto i : inputListeners) i->keyUp();}
+    if (glfwGetKey (window, GLFW_KEY_DOWN))  { for(auto i : inputListeners) i->keyDown();}
+    if (glfwGetKey (window, GLFW_KEY_LEFT))  { for(auto i : inputListeners) i->keyLeft();}
+    if (glfwGetKey (window, GLFW_KEY_RIGHT)) { for(auto i : inputListeners) i->keyRight();}
 
     static int oldW, oldH;
     if (oldW !=  g_gl_width || oldH != g_gl_height){
@@ -133,15 +126,17 @@ void WindowManager::setupFrame(){
     renderer.beginDraw();
 }
 
-Camera WindowManager::getCamera(const glm::vec3& pos, const glm::vec3& lookAt, const glm::vec3& up) const{
+void WindowManager::registerInputListener(InputListener* lis){
+    inputListeners.push_back(lis);
+}
+
+Camera WindowManager::getCamera(const glm::vec3& pos, const glm::vec3& lookAt, const glm::vec3& up) {
     return Camera(pos, lookAt, up, renderer);
 }
 
 void WindowManager::finishFrame(){
     // put the stuff we've been drawing onto the display
     glfwSwapBuffers (window);
-
-    mouseClick = false;
 }
 
 bool WindowManager::isFinish() const{

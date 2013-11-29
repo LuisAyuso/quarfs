@@ -1,8 +1,11 @@
 
 #pragma once
 
+#include <vector>
+
 #include "camera.h"
 #include "renderer.h"
+#include "input/listener.h"
 
 // forward declaration
 class GLFWwindow;
@@ -16,14 +19,18 @@ class WindowManager{
     double fps;
     void update_fps_counter ();
 
+    std::vector<InputListener*> inputListeners;
+
     public:
         WindowManager(unsigned w, unsigned h, const char* name);
         WindowManager(const WindowManager& ) = delete;
         WindowManager(const WindowManager&& ) = delete;
         ~WindowManager();
 
+        void registerInputListener(InputListener*);
+
         Renderer& getRenderer();
-        Camera getCamera(const glm::vec3& pos, const glm::vec3& inclination, const glm::vec3& lookAt) const;
+        Camera getCamera(const glm::vec3& pos, const glm::vec3& inclination, const glm::vec3& lookAt);
 
         // in loop functionality
         void setupFrame();

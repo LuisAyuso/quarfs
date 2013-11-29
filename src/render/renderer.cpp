@@ -90,10 +90,15 @@ void Renderer::beginDraw()const{
     glUseProgram (shader_program);
 }
 
-void Renderer::applyCorrection (const glm::mat4& view, const glm::vec3& pos) const{
+
+void Renderer::updateCamera (const glm::mat4& cam){
+    camera = cam;
+}
+
+void Renderer::applyCorrection (const glm::vec3& pos){
 
     glm::mat4 model  = glm::translate(glm::mat4(), pos);
-    glm::mat4 MVP    = projection * view * model; 
+    glm::mat4 MVP    = projection * camera * model; 
 
     int matrix_location = glGetUniformLocation (shader_program, "MPV");
     glUseProgram (shader_program);
@@ -123,9 +128,9 @@ void Renderer::configureRender(float w, float h){
     glEnable (GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc (GL_LESS); // depth-testing interprets a smaller value as "closer"
 
-    glEnable (GL_CULL_FACE); // cull face
-    glCullFace (GL_BACK); // cull back face
-    glFrontFace (GL_CW); // GL_CCW for counter clock-wise
+ //   glEnable (GL_CULL_FACE); // cull face
+ //   glCullFace (GL_BACK); // cull back face
+ //   glFrontFace (GL_CW); // GL_CCW for counter clock-wise
 
     projection = glm::perspective(45.0f, w / h, 0.1f, 100.0f);
 }
