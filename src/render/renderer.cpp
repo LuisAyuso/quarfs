@@ -19,15 +19,18 @@ namespace {
         "flat out vec3 normal;"
         "void main () {"
         "  color = vtx_color;"
+        "  normal = vtx_normal;"
         "  gl_Position =  MPV * vec4 (vtx_pos, 1.0);"
         "}";
 
     const char* fragment_shader =
         "#version 400\n"
         "in  vec3 color;"
+        "flat in vec3 normal;"
         "out vec4 frag_color;"
         "void main () {"
-        "  frag_color = vec4 (color, 1.0);"
+        "  vec3 N = normalize(normal); "
+        "  frag_color = vec4 ( (N+color)/2.0, 1.0);"
         "}";
 
     bool is_compiled(unsigned shader){
