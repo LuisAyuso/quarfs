@@ -15,6 +15,7 @@ namespace {
         "layout(location = 1) in vec3 vtx_color;"
         "uniform mat4 MPV;"
         "out vec3 color;"
+        //"flat out vec3 normal;"
         "void main () {"
         "  color = vtx_color;"
         "  gl_Position =  MPV * vec4 (vtx_pos, 1.0);"
