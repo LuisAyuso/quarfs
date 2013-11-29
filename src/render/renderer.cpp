@@ -128,9 +128,9 @@ void Renderer::configureRender(float w, float h){
     glEnable (GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc (GL_LESS); // depth-testing interprets a smaller value as "closer"
 
- //   glEnable (GL_CULL_FACE); // cull face
- //   glCullFace (GL_BACK); // cull back face
- //   glFrontFace (GL_CW); // GL_CCW for counter clock-wise
+    glEnable (GL_CULL_FACE); // cull face
+    glCullFace (GL_BACK); // cull back face
+    glFrontFace (GL_CCW); // is default CCW 
 
     projection = glm::perspective(45.0f, w / h, 0.1f, 100.0f);
 }
