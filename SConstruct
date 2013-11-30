@@ -2,7 +2,7 @@
 env=Environment(CPPPATH='src',
                 CPPDEFINES=[],
                 #CXX='clang++',
-                LIBS=['glfw','GLEW','GL'],
+                LIBS=['glfw','GLEW','GL','boost_filesystem','boost_system'],
                 CCFLAGS = ['-g',
                            '-Wall',
                            '--std=c++11'])

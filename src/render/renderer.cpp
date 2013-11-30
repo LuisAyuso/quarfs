@@ -46,6 +46,7 @@ void Renderer::updateCamera (const glm::mat4& cam){
     camera = cam;
     glm::mat4 PV    = projection * camera; 
     int matrix_location = glGetUniformLocation (shader_program.getId(), "PV");
+    assert(glGetError() == GL_NO_ERROR);
     glUseProgram (shader_program.getId());
     glUniformMatrix4fv (matrix_location, 1, GL_FALSE, glm::value_ptr(PV));
 }

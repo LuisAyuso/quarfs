@@ -148,6 +148,9 @@ inline double perlin(double x,double y) {
     }
     return getnoise;
   }
+///////////////////////////////////////////////////////////////////////////////////////////////7
+///////////////////////////////////////////////////////////////////////////////////////////////7
+///////////////////////////////////////////////////////////////////////////////////////////////7
 
 World::World()
         : nodeTree(-128,-128, 256, 256, 0)
@@ -179,32 +182,6 @@ World::~World(){
 }
 
 bool World::update(){
-
     return false;
 }
 
-//void World::draw() const{
-//
-//  //  // draw floor lines
-//  //  glDisable(GL_LIGHTING);
-//  //  glBegin(GL_LINES);
-//  //  for (float i=-100; i < 100; i+=10){
-//  //      glColor3f(0.0f, .5f, 0.0f);
-//  //      glVertex3f(i, 0.f, 100.0f);
-//  //      glVertex3f(i, 0.f,-100.0f);
-//  //  }
-//  //  for (float i=-100; i < 100; i+=10){
-//  //      glColor3f(0.0f, .5f, 0.0f);
-//  //      glVertex3f(-100.f, 0.f, i);
-//  //      glVertex3f( 100.f, 0.f, i);
-//  //  }
-//  //  glEnd();
-//  //  glEnable(GL_LIGHTING);
-//
-//    struct DrawVisitor : public DrawingVisitor <DrawVisitor, DrawNode>{
-//        void visitElem (const DrawNode& elem){
-//            elem.draw();
-//        }
-//    } vis;
-//    vis.traverseTree(nodeTree);
-//}

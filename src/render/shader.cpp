@@ -1,9 +1,13 @@
 
 #include "shader.h"
 
+#include <iostream>
+#include <fstream>
 #include <GL/glew.h> 
-
+#include <boost/filesystem.hpp>
 #include <assert.h>
+
+namespace fs = boost::filesystem;
 
 namespace {
 
@@ -18,7 +22,7 @@ namespace {
         "flat out vec4 normal;"
         "void main () {"
         "  color = vtx_color;"
-        "  normal = M * vec4(vtx_normal, 0.0);"
+        "  normal = vec4(vtx_normal, 0.0);"
         "  gl_Position =  PV*M* vec4 (vtx_pos, 1.0);"
         "}";
 
@@ -87,12 +91,12 @@ namespace {
         return true;
     }
 
-    unsigned compileProgram (unsigned vs, unsigned fs){
+    unsigned linkProgram (unsigned vs, unsigned fs){
 
         // link program
         unsigned id = glCreateProgram ();
-        glAttachShader (id, fs);
-        glAttachShader (id, vs);
+        if (vs) glAttachShader (id, fs);
+        if (fs) glAttachShader (id, vs);
         glLinkProgram (id);
         assert(is_valid(id));
 
@@ -108,6 +112,27 @@ namespace {
         return sh;
     }
 
+    const char* loadShader(const fs::path& p){
+        std::ifstream myfile;
+        myfile.open (p.string(), std::ios::in);
+
+        // find file size
+        size_t begin = myfile.tellg();
+        myfile.seekg (0, std::ios::end);
+        size_t end = myfile.tellg();
+        myfile.seekg (0, std::ios::beg);
+        size_t size = end-begin;
+        char* buffer = new char[size+1];
+        myfile.read(buffer, size);
+        myfile.close();
+        buffer[size] = '\0';
+
+        std::cout << "load Shader: " << p.string() <<" \n" <<
+            buffer << std::endl;
+
+        return buffer;
+    }
+
 } // anonimous namespace
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -119,13 +144,29 @@ Shader::Shader()
 Shader::Shader(const std::string& name)
 :name(name){
 
-    if (name == "default"){
-        unsigned vs = compileShader (vertex_shader, GL_VERTEX_SHADER);
-        unsigned fs = compileShader (fragment_shader, GL_FRAGMENT_SHADER);
-        id = compileProgram(vs, fs); 
+    unsigned vs(0), fs(0);
+    if (name == "default" || name.empty()){
+        vs = compileShader (vertex_shader, GL_VERTEX_SHADER);
+        fs = compileShader (fragment_shader, GL_FRAGMENT_SHADER);
+        id = linkProgram(vs, fs); 
     }
     else {
+        fs::path p("./shaders");
+        assert (fs::exists(p) && fs::is_directory(p));
+        fs::path fraFile = "./shaders/"+name+".fs.glsl";
+        assert (fs::exists(fraFile) && "no fragments shader");
+        const char* buff = loadShader(fraFile);
+        fs = compileShader(buff, GL_FRAGMENT_SHADER);
+        delete[] buff;
 
+        fs::path veFile = "./shaders/"+name+".vs.glsl";
+        assert (fs::exists(veFile) && "no fragments shader");
+        buff = loadShader(veFile);
+        vs = compileShader(buff, GL_VERTEX_SHADER);
+        delete[] buff;
+        
+        // create program
+        id = linkProgram(vs, fs); 
     }
 }
 
