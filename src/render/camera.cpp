@@ -12,6 +12,7 @@ Camera::~Camera(){
 
 void Camera::update(){
     camMat = glm::lookAt (pos, lookAt, up);
+    renderer.updateCamera(camMat);
 }
 
 void Camera::keyUp(){

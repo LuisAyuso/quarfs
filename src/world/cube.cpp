@@ -111,6 +111,8 @@ namespace {
     glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, index_ibo);
     glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (indexes), indexes, GL_STATIC_DRAW);
 
+    std::cout << "index buf:" << index_ibo << std::endl;
+
     unsigned int vao = 0;
     glGenVertexArrays (1, &vao);
     glBindVertexArray (vao);
@@ -128,7 +130,7 @@ namespace {
     glEnableVertexAttribArray (0); // optional, first buffer is active by default
     glEnableVertexAttribArray (1); // second buffer is not active by default
     glEnableVertexAttribArray (2);
-    glEnableVertexAttribArray (3);
+  //  glEnableVertexAttribArray (3);
 
     return vao;
 }

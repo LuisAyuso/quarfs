@@ -127,8 +127,8 @@ namespace {
         myfile.close();
         buffer[size] = '\0';
 
-        std::cout << "load Shader: " << p.string() <<" \n" <<
-            buffer << std::endl;
+     //   std::cout << "load Shader: " << p.string() <<" \n" <<
+     //       buffer << std::endl;
 
         return buffer;
     }
@@ -167,11 +167,13 @@ Shader::Shader(const std::string& name)
         
         // create program
         id = linkProgram(vs, fs); 
+        std::cout << "loaded shader set: " << name << std::endl;
+
     }
 }
 
 Shader::Shader(const Shader& o)
-    :name(o.name), id(id){
+    :name(o.name), id(o.id){
 }
 
 Shader::~Shader(){

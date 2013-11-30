@@ -26,33 +26,15 @@ public:
     void keyLeft();
     void keyRight();
     void mouseDiff(float x, float y);
+    void update();
 
 private:
-    void update();
 
     // we make friends, so we can use the insides
 template <typename T>
 friend void shotFrame(const Camera& cam, const T& elem);
 };
 
-
-template <typename T>
-void shotFrame(const Camera&, const T&);
-
-template<>
-inline void shotFrame(const Camera& cam, const TreeNode& tree) {
-
-    cam.renderer.updateCamera(cam.camMat);
-
-    struct DrawVisitor : public DrawingVisitor <DrawVisitor, DrawNode>{
-        const Camera& cam;
-        DrawVisitor(const Camera& cam) : cam(cam) {}
-        void visitElem (const DrawNode& elem){
-            shotFrame(cam, elem);
-        }
-    } vis(cam);
-    vis.traverseTree(tree);
-}
 
 
 template <typename T>
@@ -62,3 +44,21 @@ void shotFrame(const Camera& cam, const T& elem){
     cam.renderer.applyCorrection (pos);
     elem.draw();
 }
+
+
+
+
+//template<>
+//inline void shotFrame(const Camera& cam, const TreeNode& tree) {
+//
+//
+//    struct DrawVisitor : public DrawingVisitor <DrawVisitor, DrawNode>{
+//        const Camera& cam;
+//        DrawVisitor(const Camera& cam) : cam(cam) {}
+//        void visitElem (const DrawNode& elem){
+//            shotFrame(cam, elem);
+//        }
+//    } vis(cam);
+//    vis.traverseTree(tree);
+//}
+//
