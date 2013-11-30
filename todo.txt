@@ -9,8 +9,14 @@ NAVIGATION:
 RENDER:
 =======
 
-    - move all the gl instructions into vbos (map cubes into cordinates) -> old imperative not supported anymore
-    - finish the render with shaders
+    - what hapens with the normals? 
+        - can we draw them?
+        - how we incorporate better lighting
+    - 20k cubes: 10fps how can we solve this?
+        - compute single surface, draw everything at once
+        - clip planes, trim the map-tree also
+
+
     - two pass render, create a static map to enable interaction (hidden buffer)
     - projected shadows, much nicer 3d sensation (also moving sun... pretty cool)
 

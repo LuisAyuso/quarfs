@@ -163,9 +163,9 @@ World::World()
   //  nodeTree.addElement(DrawNode (1.0f, 0.0f, -3.0f));
   //  nodeTree.addElement(DrawNode (1.0f, 0.0f, -2.0f));
 
-    for (float i =-1; i < 2; ++i){
+    for (float i =-10; i < 10; ++i){
         std::cout << ".";
-        for (float j =-1; j < 2; ++j){
+        for (float j =-10; j < 10; ++j){
             const auto& e = DrawNode (i, perlin(i,j),j);
       //      std::cout << e << std::endl;
             nodeTree.addElement(e);

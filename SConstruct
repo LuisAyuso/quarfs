@@ -16,6 +16,7 @@ mainSources = ['build/main.cpp',
                'build/world/cube.cpp',
                'build/render/camera.cpp',
                'build/render/renderer.cpp',
+               'build/render/shader.cpp',
                'build/render/window_mgr.cpp']
 
 env.VariantDir(variant_dir = 'build/', src_dir = 'src', duplicate = 0)

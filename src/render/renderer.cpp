@@ -1,70 +1,16 @@
 #include <iostream>
 #include <assert.h>
 
+
+#include <GL/glew.h> 
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "renderer.h"
 
-namespace {
 
-    const char* vertex_shader =
-        "#version 400\n"
-        "layout(location = 0) in vec3 vtx_pos;"
-        "layout(location = 1) in vec3 vtx_color;"
-        "layout(location = 2) in vec3 vtx_normal;"
-        "uniform mat4 MPV;"
-        "out vec3 color;"
-        "flat out vec3 normal;"
-        "void main () {"
-        "  color = vtx_color;"
-        "  normal = vtx_normal;"
-        "  gl_Position =  MPV * vec4 (vtx_pos, 1.0);"
-        "}";
-
-    const char* fragment_shader =
-        "#version 400\n"
-        "in  vec3 color;"
-        "flat in vec3 normal;"
-        "out vec4 frag_color;"
-        "void main () {"
-        "  vec3 N = normalize(normal); "
-        "  frag_color = vec4 ( (N+color)/2.0, 1.0);"
-        "}";
-
-    bool is_compiled(unsigned shader){
-        int params = -1;
-        glGetShaderiv (shader, GL_COMPILE_STATUS, &params);
-        if (GL_TRUE != params) {
-            std::cout << " == shader compilation failed == " << std::endl;
-            int max_length = 2048;
-            int actual_length = 0;
-            char log[2048];
-            glGetShaderInfoLog (shader, max_length, &actual_length, log);
-            std::cout << log << std::endl;
-            return false; 
-        }
-        return true;
-    }
-
-    bool is_valid (unsigned prog) {
-        glValidateProgram (prog);
-        int params = -1;
-        glGetProgramiv (prog, GL_VALIDATE_STATUS, &params);
-        if (GL_TRUE != params) {
-            std::cout << " == shader program not valid == " << std::endl;
-            int max_length = 2048;
-            int actual_length = 0;
-            char log[2048];
-            glGetProgramInfoLog (prog, max_length, &actual_length, log);
-            std::cout << log << std::endl;
-            return false;
-        }
-        return true;
-    }
-
-} // anonimous namespace
 
 
 Renderer::Renderer() 
@@ -76,7 +22,7 @@ Renderer::~Renderer(){
 }
 
 void Renderer::init(float w, float h){
-    compileShaders();
+    shader_program = Shader("models");
     configureRender(w, h);
 }
 
@@ -89,43 +35,27 @@ void Renderer::beginDraw()const{
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // setup Matrix
-    int matrix_location = glGetUniformLocation (shader_program, "MPV");
-    glUseProgram (shader_program);
+    int matrix_location = glGetUniformLocation (shader_program.getId(), "MPV");
+    glUseProgram (shader_program.getId());
     glUniformMatrix4fv (matrix_location, 1, GL_FALSE,  glm::value_ptr(glm::mat4()));
-    glUseProgram (shader_program);
+    glUseProgram (shader_program.getId());
 }
 
 
 void Renderer::updateCamera (const glm::mat4& cam){
     camera = cam;
+    glm::mat4 PV    = projection * camera; 
+    int matrix_location = glGetUniformLocation (shader_program.getId(), "PV");
+    glUseProgram (shader_program.getId());
+    glUniformMatrix4fv (matrix_location, 1, GL_FALSE, glm::value_ptr(PV));
 }
 
 void Renderer::applyCorrection (const glm::vec3& pos){
 
     glm::mat4 model  = glm::translate(glm::mat4(), pos);
-    glm::mat4 MVP    = projection * camera * model; 
-
-    int matrix_location = glGetUniformLocation (shader_program, "MPV");
-    glUseProgram (shader_program);
-    glUniformMatrix4fv (matrix_location, 1, GL_FALSE, glm::value_ptr(MVP));
-}
-
-
-void Renderer::compileShaders(){
-    unsigned int vs = glCreateShader (GL_VERTEX_SHADER);
-    glShaderSource (vs, 1, &vertex_shader, NULL);
-    glCompileShader (vs);
-    assert(is_compiled(vs));
-    unsigned int fs = glCreateShader (GL_FRAGMENT_SHADER);
-    glShaderSource (fs, 1, &fragment_shader, NULL);
-    glCompileShader (fs);
-    assert(is_compiled(fs));
-
-    shader_program = glCreateProgram ();
-    glAttachShader (shader_program, fs);
-    glAttachShader (shader_program, vs);
-    glLinkProgram (shader_program);
-    assert(is_valid(shader_program));
+    int matrix_location = glGetUniformLocation (shader_program.getId(), "M");
+    glUseProgram (shader_program.getId());
+    glUniformMatrix4fv (matrix_location, 1, GL_FALSE, glm::value_ptr(model));
 }
 
 void Renderer::configureRender(float w, float h){

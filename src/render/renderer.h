@@ -1,13 +1,14 @@
 #pragma once
 
-#include <GL/glew.h> // include GLEW and new version of GL on Windows
 #include <glm/glm.hpp>
+
+#include "shader.h"
 
 
 class Renderer{
 
     // shaders
-    unsigned shader_program;
+    Shader shader_program;
     
     // other objects
     glm::mat4 projection;
@@ -38,8 +39,4 @@ class Renderer{
         void applyCorrection (const glm::vec3& pos);
 
         void configureRender(float w, float h);
-
-    private:
-        // setup
-        void compileShaders();
 };
