@@ -92,6 +92,8 @@ WindowManager::WindowManager(unsigned w, unsigned h, const char* name){
     //////////////////////////////////////////////
     // initialize renderer
     renderer.init(w,h);
+
+    registerInputListener(&renderer);
 }
 
 WindowManager::~WindowManager(){
@@ -100,13 +102,15 @@ WindowManager::~WindowManager(){
 }
         
 void WindowManager::setupFrame(){
+
+    static int count =0; //  60 frames?  30 will be half a second
+
     // measure fps
     update_fps_counter();
     // update other events like input handling 
     glfwPollEvents ();
 
     glfwGetCursorPos (window, &mouseX, &mouseY);
-    //std::cout << "mouse: " << mouseX << "," << mouseY << std::endl;
 
     // ESC key handling
     if (GLFW_PRESS == glfwGetKey (window, GLFW_KEY_ESCAPE)) {
@@ -116,10 +120,15 @@ void WindowManager::setupFrame(){
     if (glfwGetKey (window, GLFW_KEY_DOWN))  { for(auto i : inputListeners) i->keyDown();}
     if (glfwGetKey (window, GLFW_KEY_LEFT))  { for(auto i : inputListeners) i->keyLeft();}
     if (glfwGetKey (window, GLFW_KEY_RIGHT)) { for(auto i : inputListeners) i->keyRight();}
+    if (glfwGetKey (window, GLFW_KEY_SPACE)) { if(!count){
+                                                    for(auto i : inputListeners) i->spacebar();
+                                                    count = 30;
+                                                  }
+                                              }
     if (mouseDown){ for(auto i : inputListeners) i->mouseDiff((lastmX-mouseX)/10.0, (lastmY-mouseY)/10.); }
     lastmX=mouseX; 
     lastmY=mouseY;
-
+    if (count) count --;
 
     static int oldW, oldH;
     if (oldW !=  g_gl_width || oldH != g_gl_height){

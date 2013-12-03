@@ -21,5 +21,6 @@ public:
     ~Shader();
 
     unsigned getId()const ;
+    std::string getName()const ;
 
 };

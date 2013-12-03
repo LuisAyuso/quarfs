@@ -1,14 +1,17 @@
 #pragma once
 
+#include <vector>
 #include <glm/glm.hpp>
 
+#include "input/listener.h"
 #include "shader.h"
 
 
-class Renderer{
+class Renderer :public InputListener{
 
     // shaders
-    Shader shader_program;
+    std::vector<Shader> shader_programs;
+    unsigned currentShader;
     
     // other objects
     glm::mat4 projection;
@@ -39,4 +42,7 @@ class Renderer{
         void applyCorrection (const glm::vec3& pos);
 
         void configureRender(float w, float h);
+
+        // From input. to change shader
+        void spacebar();
 };

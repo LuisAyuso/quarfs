@@ -182,3 +182,8 @@ Shader::~Shader(){
 unsigned Shader::getId()const {
     return id;
 }
+
+std::string Shader::getName()const {
+    return name;
+}
+

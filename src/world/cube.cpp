@@ -21,69 +21,55 @@ namespace {
         0.5f,-0.5f, 0.5f,
     };
 
-    // 12 normals, pass as flat, not interpolated and transmited b the (first/last) vertex
+    // 8 normals, pass as flat, not interpolated and transmited b the (first/last) vertex
     float normals[] = {
-        0.0,  0.0, -1.0,
-        0.0,  0.0, -1.0,
+        0.0 ,-1.0, 0.0,   
+        0.0 , 0.0, 0.0,  // no use
+        0.0 , 0.0,-1.0, 
+        0.0 , 0.0, 0.0,  // no use
 
-        0.0,  0.0,  1.0,
-        0.0,  0.0,  1.0,
-
-        1.0,  0.0,  0.0,
-        1.0,  0.0,  0.0,
-
-        0.0, -1.0,  0.0,
-        0.0, -1.0,  0.0,
-
-       -1.0,  0.0,  0.0,
-       -1.0,  0.0,  0.0,
-
-        0.0,  1.0,  0.0,
-        0.0,  1.0,  0.0,
-
+       -1.0 , 0.0, 0.0, 
+        0.0 , 1.0, 0.0, 
+        1.0 , 0.0, 0.0, 
+        0.0 , 0.0, 1.0, 
     };
 
     float colours[] = {
-        1.0 , 0.5, 0.0, 
-        0.0 , 0.5, 0.3, 
-        0.0 , 0.0, 0.3, 
-        0.7 , 0.0, 0.3, 
+        1.0 , 0.0, 0.0,   // red
+        0.0 , 1.0, 0.0,   // green
+        0.0 , 0.0, 1.0,   // blue
+        0.0 , 0.0, 0.0, 
 
-        0.7 , 0.0, 0.0, 
-        0.7 , 0.3, 0.0, 
-        0.0 , 0.3, 0.1, 
-        0.0 , 0.3, 0.0, 
-     //   159.0/255.0,182.0/255.0,205.0/255.0,
-     //   159.0/255.0,182.0/255.0,205.0/255.0,
-     //   159.0/255.0,182.0/255.0,205.0/255.0,
-     //   159.0/255.0,182.0/255.0,205.0/255.0,
-
-     //   159.0/255.0,182.0/255.0,205.0/255.0,
-     //   159.0/255.0,182.0/255.0,205.0/255.0,
-     //   159.0/255.0,182.0/255.0,205.0/255.0,
-     //   159.0/255.0,182.0/255.0,205.0/255.0,
+        0.0 , 0.0, 1.0, 
+        0.0 , 0.0, 0.0, 
+        1.0 , 0.0, 0.0, 
+        0.0 , 1.0, 0.0, 
+     //   159.0/255.0,182.0/255.0,205.0/255.0,  // nice gray
     };
 
+    // here is the tick, each corner has a single normal
+    // flat buffers are passed without interpolation along the GPU 
+    // with the value of the first/last vertex which trigered the rutine
     unsigned indexes[]{
         // front
-        0,1,2,  
-        2,3,0,  
+        0,1,2,  // a
+        3,0,2,  // b
 
         // back
-        4,7,5,  
-        5,7,6,
+        5,4,7,  // c
+        6,5,7,  // d
 
-        3,2,6,
-        6,7,3,
+        3,2,6,  // e
+        7,3,6,  // f
 
-        0,3,7,
-        7,4,0,
+        3,7,0,  // g
+        7,4,0,  // h
 
-        0,4,5,
-        5,1,0,
+        5,1,4,  // i
+        1,0,4,  // j
 
-        1,5,2,
-        2,5,6
+        2,1,5,  // k
+        6,2,5   // l
     };
 
     // alocate in memory the vertex, then copy to gpu and forget them
@@ -104,14 +90,12 @@ namespace {
     unsigned int normals_vbo = 0;
     glGenBuffers (1, &normals_vbo);
     glBindBuffer (GL_ARRAY_BUFFER, normals_vbo);
-    glBufferData (GL_ARRAY_BUFFER, 3*12 * sizeof (float), normals, GL_STATIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, 3*8 * sizeof (float), normals, GL_STATIC_DRAW);
 
     unsigned int index_ibo = 0;
     glGenBuffers (1, &index_ibo);
     glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, index_ibo);
     glBufferData (GL_ELEMENT_ARRAY_BUFFER, sizeof (indexes), indexes, GL_STATIC_DRAW);
-
-    std::cout << "index buf:" << index_ibo << std::endl;
 
     unsigned int vao = 0;
     glGenVertexArrays (1, &vao);

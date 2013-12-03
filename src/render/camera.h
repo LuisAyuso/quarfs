@@ -48,17 +48,17 @@ void shotFrame(const Camera& cam, const T& elem){
 
 
 
-//template<>
-//inline void shotFrame(const Camera& cam, const TreeNode& tree) {
-//
-//
-//    struct DrawVisitor : public DrawingVisitor <DrawVisitor, DrawNode>{
-//        const Camera& cam;
-//        DrawVisitor(const Camera& cam) : cam(cam) {}
-//        void visitElem (const DrawNode& elem){
-//            shotFrame(cam, elem);
-//        }
-//    } vis(cam);
-//    vis.traverseTree(tree);
-//}
-//
+template<>
+inline void shotFrame(const Camera& cam, const TreeNode& tree) {
+
+
+    struct DrawVisitor : public DrawingVisitor <DrawVisitor, DrawNode>{
+        const Camera& cam;
+        DrawVisitor(const Camera& cam) : cam(cam) {}
+        void visitElem (const DrawNode& elem){
+            shotFrame(cam, elem);
+        }
+    } vis(cam);
+    vis.traverseTree(tree);
+}
+
