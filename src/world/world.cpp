@@ -113,30 +113,28 @@ std::ostream& operator<<(std::ostream& out, const TreeNode& tn){
 ///////////////////////////////////////////////////////////////////////////////////////////////7
 
 World::World()
-        : nodeTree(-128,-128, 256, 256, 0)
+        : nodeTree(-1024, -1024, 2048 , 2048, 0)
 {
 
-  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 0.0f));
-  nodeTree.addElement(DrawNode ( 3.0f, 0.0f, 0.0f));
-  nodeTree.addElement(DrawNode ( 0.0f, 3.0f, 0.0f));
-  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 3.0f));
-  nodeTree.addElement(DrawNode ( 5.0f, 0.0f, 0.0f));
-  nodeTree.addElement(DrawNode ( 0.0f, 5.0f, 0.0f));
-  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 5.0f));
-  nodeTree.addElement(DrawNode ( 0.0f, 7.0f, 0.0f));
-  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 7.0f));
-  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 9.0f));
+//  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 0.0f));
+//  nodeTree.addElement(DrawNode ( 3.0f, 0.0f, 0.0f));
+//  nodeTree.addElement(DrawNode ( 0.0f, 3.0f, 0.0f));
+//  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 3.0f));
+//  nodeTree.addElement(DrawNode ( 5.0f, 0.0f, 0.0f));
+//  nodeTree.addElement(DrawNode ( 0.0f, 5.0f, 0.0f));
+//  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 5.0f));
+//  nodeTree.addElement(DrawNode ( 0.0f, 7.0f, 0.0f));
+//  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 7.0f));
+//  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 9.0f));
 
 
-//    for (float i =-10; i < 10; ++i){
-//        std::cout << ".";
-//        for (float j =-10; j < 10; ++j){
-//            const auto& e = DrawNode (i, perlin(i,j),j);
-//      //      std::cout << e << std::endl;
-//            nodeTree.addElement(e);
-//        }
-//    }
-//    std::cout << " map done " << std::endl;
+    for (float i =-200; i < 200; ++i){
+        for (float j =-200; j < 200; ++j){
+            const auto& e = DrawNode (i, perlin(i,j),j);
+            nodeTree.addElement(e);
+        }
+    }
+    std::cout << " map done " << std::endl;
 
 }
 

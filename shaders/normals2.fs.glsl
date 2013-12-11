@@ -1,6 +1,6 @@
 #version 400
 
-// not interpolated normals
+// interpolated normals
 
 // inputs
 in  vec3 color;

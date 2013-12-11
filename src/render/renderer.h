@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <glm/glm.hpp>
 
 #include "input/listener.h"
@@ -10,12 +11,14 @@
 class Renderer :public InputListener{
 
     // shaders
-    std::vector<Shader> shader_programs;
+    std::vector<std::shared_ptr<Shader>> shader_programs;
     unsigned currentShader;
     
     // other objects
     glm::mat4 projection;
     glm::mat4 camera;
+    
+    mutable unsigned currentCount;
 
     public:
 
@@ -34,12 +37,6 @@ class Renderer :public InputListener{
         void beginDraw()const;
 
         void updateCamera (const glm::mat4& camera);
-
-        /**
-         * performs a transformation int the matrix
-         *  acording to the formula:  Perspective*camera*transform*
-         */
-        void applyCorrection (const glm::vec3& pos);
 
         void configureRender(float w, float h);
 

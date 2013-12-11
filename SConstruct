@@ -16,7 +16,10 @@ mainSources = ['build/main.cpp',
                'build/world/cube.cpp',
                'build/world/surface.cpp',
                'build/world/noise.cpp',
+               'build/world/instance.cpp',
+               'build/utils/fileHandler.cpp',
                'build/render/camera.cpp',
+               'build/render/utils.cpp',
                'build/render/renderer.cpp',
                'build/render/shader.cpp',
                'build/render/window_mgr.cpp']
@@ -27,3 +30,4 @@ env.VariantDir(variant_dir = 'build/utils', src_dir = 'src/utils', duplicate = 0
 env.VariantDir(variant_dir = 'build/world', src_dir = 'src/input', duplicate = 0)
 
 env.Program(target = 'quarfs', source = [mainSources])
+# env.Program(target = 'test', source = ['build/test.cpp'])

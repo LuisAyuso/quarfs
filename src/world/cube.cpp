@@ -35,15 +35,24 @@ namespace {
     };
 
     float colours[] = {
-        1.0 , 0.0, 0.0,   // red
-        0.0 , 1.0, 0.0,   // green
-        0.0 , 0.0, 1.0,   // blue
-        0.0 , 0.0, 0.0, 
+  //    1.0 , 0.0, 0.0,   // red
+  //    0.0 , 1.0, 0.0,   // green
+  //    0.0 , 0.0, 1.0,   // blue
+  //    0.0 , 0.0, 0.0, 
 
-        0.0 , 0.0, 1.0, 
-        0.0 , 0.0, 0.0, 
-        1.0 , 0.0, 0.0, 
-        0.0 , 1.0, 0.0, 
+        139.0/256.0,  90.0/256.0,  0.0,
+                0.0, 205.0/256.0, 102.0/256.0,
+                0.0, 205.0/256.0, 102.0/256.0,
+        139.0/256.0,  90.0/256.0,  0.0,
+
+        139.0/256.0,  90.0/256.0,  0.0,
+                0.0, 205.0/256.0, 102.0/256.0,
+                0.0, 205.0/256.0, 102.0/256.0,
+        139.0/256.0,  90.0/256.0,  0.0,
+  //      0.0 , 0.0, 1.0, 
+  //      0.0 , 0.0, 0.0, 
+  //      1.0 , 0.0, 0.0, 
+  //      0.0 , 1.0, 0.0, 
      //   159.0/255.0,182.0/255.0,205.0/255.0,  // nice gray
     };
 
@@ -100,7 +109,6 @@ namespace {
     unsigned int vao = 0;
     glGenVertexArrays (1, &vao);
     glBindVertexArray (vao);
-    glEnableVertexAttribArray (0);
 
     glBindBuffer (GL_ARRAY_BUFFER, quad_vbo);
     glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, (GLubyte*)NULL);
@@ -108,14 +116,15 @@ namespace {
     glVertexAttribPointer (1, 3, GL_FLOAT, GL_FALSE, 0, (GLubyte*)NULL);
     glBindBuffer (GL_ARRAY_BUFFER, normals_vbo);
     glVertexAttribPointer (2, 3, GL_FLOAT, GL_FALSE, 0, (GLubyte*)NULL);
+
     glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, index_ibo);
-    glVertexAttribPointer (3, 3, GL_UNSIGNED_INT, GL_FALSE, 0, (GLubyte*)NULL);
 
-    glEnableVertexAttribArray (0); // optional, first buffer is active by default
-    glEnableVertexAttribArray (1); // second buffer is not active by default
-    glEnableVertexAttribArray (2);
-  //  glEnableVertexAttribArray (3);
+    glEnableVertexAttribArray (0); // optional, first buffer is active by default  // vertex
+    glEnableVertexAttribArray (1); // second buffer is not active by default       // color
+    glEnableVertexAttribArray (2);                                                 // normals
+  
 
+    std::cout << "vao! " << vao << std::endl;
     return vao;
 }
 

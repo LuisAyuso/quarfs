@@ -20,18 +20,18 @@ void FileHandler::registerHandle(const std::string& filename, FileListener* list
 
 void FileHandler::checkForModifications(){
 
-    for (const auto& pair : timestamps){
+    for (auto& pair : timestamps){
         boost::filesystem::path p(pair.first);
-        if (!boost::filesystem::exists(p)){
-            std::cout << "file " << pair.first << " no longer available " << std::endl;
-        }
-        else if (pair.second < boost::filesystem::last_write_time(p)){
-            for (auto& listener : listeners[pair.first]){
-                listener->notifiyModification(pair.first);
+        if (boost::filesystem::exists(p)){
+            auto time = boost::filesystem::last_write_time(p);
+            if (pair.second < time){
+                pair.second = time;
+                for (auto& listener : listeners[pair.first]){
+                    listener->notifiyModification(pair.first);
+                }
             }
         }
     }
-
 }
 
 FileHandler& FileHandler::getInstance(){

@@ -28,4 +28,5 @@ void main () {
 
   float cosTheta = clamp( dot( tmp.xyz,lightPos ), 0,1 );
   frag_color =  vec4( cosTheta*color, 1.0);
+
 }

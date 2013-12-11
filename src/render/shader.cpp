@@ -5,6 +5,8 @@
 #include <fstream>
 #include <GL/glew.h> 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include "utils.h"
 #include <assert.h>
 
 namespace fs = boost::filesystem;
@@ -16,14 +18,14 @@ namespace {
         "layout(location = 0) in vec3 vtx_pos;"
         "layout(location = 1) in vec3 vtx_color;"
         "layout(location = 2) in vec3 vtx_normal;"
+        "layout(location = 3) in vec3 vtx_trans;"
         "uniform mat4 PV;"  // perspective*view
-        "uniform mat4 M;"   // model
         "out vec3 color;"
         "flat out vec4 normal;"
         "void main () {"
         "  color = vtx_color;"
         "  normal = vec4(vtx_normal, 0.0);"
-        "  gl_Position =  PV*M* vec4 (vtx_pos, 1.0);"
+        "  gl_Position =  PV* vec4 (vtx_pos+vtx_trans, 1.0);"
         "}";
 
     const char* fragment_shader =
@@ -98,8 +100,6 @@ namespace {
         if (vs) glAttachShader (id, fs);
         if (fs) glAttachShader (id, vs);
         glLinkProgram (id);
-        assert(is_valid(id));
-
         return id;
     }
 
@@ -108,7 +108,6 @@ namespace {
         unsigned int sh = glCreateShader (type);
         glShaderSource (sh, 1, &buffer, NULL);
         glCompileShader (sh);
-        assert(is_compiled(sh,type));
         return sh;
     }
 
@@ -138,9 +137,6 @@ namespace {
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Shader::Shader()
-    :name ("uninitialized"){
-}
 Shader::Shader(const std::string& name)
 :name(name){
 
@@ -153,27 +149,58 @@ Shader::Shader(const std::string& name)
     else {
         fs::path p("./shaders");
         assert (fs::exists(p) && fs::is_directory(p));
-        fs::path fraFile = "./shaders/"+name+".fs.glsl";
-        assert (fs::exists(fraFile) && "no fragments shader");
-        const char* buff = loadShader(fraFile);
-        fs = compileShader(buff, GL_FRAGMENT_SHADER);
-        delete[] buff;
 
+        // find and compile vertex shader
         fs::path veFile = "./shaders/"+name+".vs.glsl";
         assert (fs::exists(veFile) && "no fragments shader");
-        buff = loadShader(veFile);
+        const char* buff = loadShader(veFile);
         vs = compileShader(buff, GL_VERTEX_SHADER);
+        assert(is_compiled(vs,GL_VERTEX_SHADER));
+        delete[] buff;
+
+        // find and compile fragment shader
+        fs::path fraFile = "./shaders/"+name+".fs.glsl";
+        assert (fs::exists(fraFile) && "no fragments shader");
+        buff = loadShader(fraFile);
+        fs = compileShader(buff, GL_FRAGMENT_SHADER);
+        assert(is_compiled(fs,GL_FRAGMENT_SHADER));
         delete[] buff;
         
         // create program
         id = linkProgram(vs, fs); 
-        std::cout << "loaded shader set: " << name << std::endl;
+        assert(is_valid(id));
 
+        // register files to update modifications
+        FileHandler::getInstance().registerHandle(fraFile.string(), this);
+        FileHandler::getInstance().registerHandle(veFile.string(), this);
     }
-}
 
-Shader::Shader(const Shader& o)
-    :name(o.name), id(o.id){
+    int shnum;
+    glGetProgramiv(id, GL_ATTACHED_SHADERS, &shnum);
+    assert(allAllright());
+    std::cout << "loaded shader set: " << name << " with " << shnum << " shaders" << std::endl;
+    int uniforms;
+    GLint size; 
+    glGetProgramiv(id, GL_ACTIVE_UNIFORMS, &uniforms);
+    assert(allAllright());
+    for (int i =0; i < uniforms; i+=size){
+        char name[128];
+        GLenum type;
+        glGetActiveUniform (id, i, 128, NULL, &size, &type, name);
+    assert(allAllright());
+        std::cout << "\tuniform: " << name << " size: " << size << std::endl;
+    }
+    assert(allAllright());
+//    int attirbutes;
+//    glGetProgramiv(id, GL_ACTIVE_ATTRIBUTES, &attirbutes);
+//    for (unsigned i =0; i < attirbutes; i++){
+//        char name[128];
+//        GLenum type;
+//        glGetActiveUniform (id, i, 128, NULL, &size, &type, name);
+//        std::cout << "\tattribute: " << name << " size " << size << std::endl;
+//    }
+//    assert(allAllright());
+
 }
 
 Shader::~Shader(){
@@ -187,3 +214,45 @@ std::string Shader::getName()const {
     return name;
 }
 
+void Shader::notifiyModification(const std::string& fname){
+    std::cout << "file " << fname << " modified! " << std::endl;
+    // what kind of shader is it?  ignore, recompose both paths and compile again
+    
+    std::string verFile = fname;
+    std::string fraFile = fname;
+    //"vs.glsl" has 7 chars
+    verFile.replace (verFile.end()-7, verFile.end(), std::string("vs.glsl"));
+    fraFile.replace (fraFile.end()-7, fraFile.end(), std::string("fs.glsl"));
+
+    std::cout <<  verFile << std::endl;
+    std::cout <<  fraFile << std::endl;
+    
+    // load, compile... 
+    fs::path verPath = verFile;
+    assert (fs::exists(verPath) && "no fragments shader");
+    const char* buff = loadShader(verPath);
+    unsigned vs = compileShader(buff, GL_VERTEX_SHADER);
+    delete[] buff;
+
+    fs::path fraPath = fraFile;
+    assert (fs::exists(fraPath) && "no fragments shader");
+    buff = loadShader(fraPath);
+    unsigned fs = compileShader(buff, GL_FRAGMENT_SHADER);
+    delete[] buff;
+    
+    // create program
+    unsigned newid = linkProgram(vs, fs); 
+
+    // we load and compile the others as well (could be cached)
+    if (is_valid(newid)){
+    
+        // link, if everithing alright, change and delete previous.
+        unsigned sh[8];
+        int size;
+        glGetAttachedShaders (id, 8, &size, sh);
+        for (unsigned i =0; i< size; ++i) glDeleteShader(sh[i]);
+        glDeleteProgram(id);
+
+        id = newid;
+    }
+}
