@@ -128,8 +128,8 @@ World::World()
 //  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 9.0f));
 
 
-    for (float i =-200; i < 200; ++i){
-        for (float j =-200; j < 200; ++j){
+    for (float i =-400; i < 400; ++i){
+        for (float j =-400; j < 400; ++j){
             const auto& e = DrawNode (i, perlin(i,j),j);
             nodeTree.addElement(e);
         }

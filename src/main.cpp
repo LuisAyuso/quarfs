@@ -46,10 +46,6 @@ int main () {
 
         // draw!
         shotFrame(cam, w.getTree());
-        shotFrame(cam, w.getTree());
-        shotFrame(cam, w.getTree());
-        shotFrame(cam, w.getTree());
-        shotFrame(cam, w.getTree());
     //    shotFrame(cam, s);
     //
      //   w.update();
