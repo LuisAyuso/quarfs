@@ -64,7 +64,8 @@ void Renderer::updateCamera (const glm::mat4& cam){
 
     // load light pos
     matrix_location = glGetUniformLocation (shader_programs[currentShader]->getId(), "lightPos");
-    glUniform3f (matrix_location, sin(currentCount/100.0)*10.0, 10.0, 0.0);
+    float lightStep = currentCount/600.0;
+    glUniform3f (matrix_location, sin(lightStep)*500.0, cos(lightStep)*500.0, 0.0);
     assert(allAllright());
 }
 

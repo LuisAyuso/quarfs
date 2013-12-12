@@ -108,6 +108,7 @@ namespace {
         unsigned int sh = glCreateShader (type);
         glShaderSource (sh, 1, &buffer, NULL);
         glCompileShader (sh);
+        is_compiled (sh, type);
         return sh;
     }
 
@@ -250,7 +251,7 @@ void Shader::notifiyModification(const std::string& fname){
         unsigned sh[8];
         int size;
         glGetAttachedShaders (id, 8, &size, sh);
-        for (unsigned i =0; i< size; ++i) glDeleteShader(sh[i]);
+        for (int i =0; i< size; ++i) glDeleteShader(sh[i]);
         glDeleteProgram(id);
 
         id = newid;

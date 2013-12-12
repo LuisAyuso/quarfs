@@ -13,11 +13,12 @@ uniform mat4 PV;  // perspective*view
 uniform vec3 lightPos;  // perspective*view
 
 // outputs
+out vec4 pos;
 out vec3 color;
-out vec4 normal;  // flat, do not interpolate
+flat out vec4 normal;  // flat, do not interpolate
 
 void main () {
   color = vtx_color;
   normal = vec4(vtx_normal, 0.0);
-  gl_Position =  PV* vec4 (vtx_pos+vtx_trans, 1.0);
+  gl_Position = pos = PV* vec4 (vtx_pos+vtx_trans, 1.0);
 }
