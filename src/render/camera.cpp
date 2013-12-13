@@ -18,23 +18,23 @@ void Camera::update(){
 void Camera::keyUp(){
     glm::vec3 to = lookAt-pos;
     to = glm::normalize(to);
-    pos.y += 0.1;
-    lookAt.y += 0.1;
+    pos.z += 0.1;
+    lookAt.z += 0.1;
     update();
 }
 void Camera::keyDown(){
-    pos.y -= 0.1;
-    lookAt.y -= 0.1;
+    pos.z -= 0.1;
+    lookAt.z -= 0.1;
     update();
 }
 void Camera::keyRight(){
-    pos.x += 0.1;
-    lookAt.x += 0.1;
+    pos.x -= 0.1;
+    lookAt.x -= 0.1;
     update();
 }
 void Camera::keyLeft(){
-    pos.x -= 0.1;
-    lookAt.x -= 0.1;
+    pos.x += 0.1;
+    lookAt.x += 0.1;
     update();
 }
 void Camera::mouseDiff(float x, float y){

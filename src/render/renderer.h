@@ -7,6 +7,8 @@
 #include "input/listener.h"
 #include "shader.h"
 
+struct DebugQuad;
+struct ShadowCaster;
 
 class Renderer :public InputListener{
 
@@ -19,6 +21,10 @@ class Renderer :public InputListener{
     glm::mat4 camera;
     
     mutable unsigned currentCount;
+
+    // debug:
+    DebugQuad* debugScreen;
+    //ShadowCaster* shadowCaster;
 
     public:
 
@@ -35,6 +41,8 @@ class Renderer :public InputListener{
         void setPerspective (float w, float h);
         
         void beginDraw()const;
+
+        void endDraw()const;
 
         void updateCamera (const glm::mat4& camera);
 

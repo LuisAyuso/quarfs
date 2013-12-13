@@ -39,79 +39,6 @@ namespace {
         "  frag_color = vec4 ( (N+color)/2.0, 1.0);"
         "}";
 
-    std::string getShaderTypeName (GLenum t){
-        switch(t){
-            case GL_COMPUTE_SHADER:
-                return std::string("GL_COMPUTE_SHADER");
-
-            case GL_VERTEX_SHADER:
-                return std::string("GL_VERTEX_SHADER");
-
-            case GL_TESS_CONTROL_SHADER:
-                return std::string("GL_TESS_CONTROL_SHADER");
-
-            case GL_TESS_EVALUATION_SHADER:
-                return std::string("GL_TESS_EVALUATION_SHADER");
-
-            case GL_GEOMETRY_SHADER:
-                return std::string("GL_GEOMETRY_SHADER");
-
-            case GL_FRAGMENT_SHADER:
-                return std::string("GL_FRAGMENT_SHADER");
-        }
-        return "unknow";
-    }
-
-    bool is_compiled(unsigned shader, GLenum type){
-        int params = -1;
-        glGetShaderiv (shader, GL_COMPILE_STATUS, &params);
-        if (GL_TRUE != params) {
-            std::cout << " == " << getShaderTypeName(type) << " compilation failed == " << std::endl;
-            int max_length = 2048;
-            int actual_length = 0;
-            char log[2048];
-            glGetShaderInfoLog (shader, max_length, &actual_length, log);
-            std::cout << log << std::endl;
-            return false; 
-        }
-        return true;
-    }
-
-    bool is_valid (unsigned prog) {
-        glValidateProgram (prog);
-        int params = -1;
-        glGetProgramiv (prog, GL_VALIDATE_STATUS, &params);
-        if (GL_TRUE != params) {
-            std::cout << " == shader program not valid == " << std::endl;
-            int max_length = 2048;
-            int actual_length = 0;
-            char log[2048];
-            glGetProgramInfoLog (prog, max_length, &actual_length, log);
-            std::cout << log << std::endl;
-            return false;
-        }
-        return true;
-    }
-
-    unsigned linkProgram (unsigned vs, unsigned fs){
-
-        // link program
-        unsigned id = glCreateProgram ();
-        if (vs) glAttachShader (id, fs);
-        if (fs) glAttachShader (id, vs);
-        glLinkProgram (id);
-        return id;
-    }
-
-    unsigned compileShader(const char* buffer, GLenum type){
-        // compile shaders
-        unsigned int sh = glCreateShader (type);
-        glShaderSource (sh, 1, &buffer, NULL);
-        glCompileShader (sh);
-        is_compiled (sh, type);
-        return sh;
-    }
-
     const char* loadShader(const fs::path& p){
         std::ifstream myfile;
         myfile.open (p.string(), std::ios::in);
@@ -132,8 +59,8 @@ namespace {
 
         return buffer;
     }
+}
 
-} // anonimous namespace
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -256,4 +183,81 @@ void Shader::notifiyModification(const std::string& fname){
 
         id = newid;
     }
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////   Shader tools  /////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+
+std::string getShaderTypeName (GLenum t){
+    switch(t){
+        case GL_COMPUTE_SHADER:
+            return std::string("GL_COMPUTE_SHADER");
+
+        case GL_VERTEX_SHADER:
+            return std::string("GL_VERTEX_SHADER");
+
+        case GL_TESS_CONTROL_SHADER:
+            return std::string("GL_TESS_CONTROL_SHADER");
+
+        case GL_TESS_EVALUATION_SHADER:
+            return std::string("GL_TESS_EVALUATION_SHADER");
+
+        case GL_GEOMETRY_SHADER:
+            return std::string("GL_GEOMETRY_SHADER");
+
+        case GL_FRAGMENT_SHADER:
+            return std::string("GL_FRAGMENT_SHADER");
+    }
+    return "unknow";
+}
+
+bool is_compiled(unsigned shader, GLenum type){
+    int params = -1;
+    glGetShaderiv (shader, GL_COMPILE_STATUS, &params);
+    if (GL_TRUE != params) {
+        std::cout << " == " << getShaderTypeName(type) << " compilation failed == " << std::endl;
+        int max_length = 2048;
+        int actual_length = 0;
+        char log[2048];
+        glGetShaderInfoLog (shader, max_length, &actual_length, log);
+        std::cout << log << std::endl;
+        return false; 
+    }
+    return true;
+}
+
+bool is_valid (unsigned prog) {
+    glValidateProgram (prog);
+    int params = -1;
+    glGetProgramiv (prog, GL_VALIDATE_STATUS, &params);
+    if (GL_TRUE != params) {
+        std::cout << " == shader program not valid == " << std::endl;
+        int max_length = 2048;
+        int actual_length = 0;
+        char log[2048];
+        glGetProgramInfoLog (prog, max_length, &actual_length, log);
+        std::cout << log << std::endl;
+        return false;
+    }
+    return true;
+}
+
+unsigned linkProgram (unsigned vs, unsigned fs){
+
+    // link program
+    unsigned id = glCreateProgram ();
+    if (vs) glAttachShader (id, fs);
+    if (fs) glAttachShader (id, vs);
+    glLinkProgram (id);
+    return id;
+}
+
+unsigned compileShader(const char* buffer, GLenum type){
+    // compile shaders
+    unsigned int sh = glCreateShader (type);
+    glShaderSource (sh, 1, &buffer, NULL);
+    glCompileShader (sh);
+    is_compiled (sh, type);
+    return sh;
 }

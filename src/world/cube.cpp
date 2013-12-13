@@ -41,13 +41,13 @@ namespace {
   //    0.0 , 0.0, 0.0, 
 
         139.0/256.0,  90.0/256.0,  0.0,
-                0.0, 190.0/256.0, 82.0/256.0,
-                0.0, 190.0/256.0, 82.0/256.0,
+                0.0, 150.0/256.0, 70.0/256.0,
+                0.0, 150.0/256.0, 70.0/256.0,
         139.0/256.0,  90.0/256.0,  0.0,
 
         139.0/256.0,  90.0/256.0,  0.0,
-                0.0, 190.0/256.0, 82.0/256.0,
-                0.0, 190.0/256.0, 82.0/256.0,
+                0.0, 150.0/256.0, 70.0/256.0,
+                0.0, 150.0/256.0, 70.0/256.0,
         139.0/256.0,  90.0/256.0,  0.0,
   //      0.0 , 0.0, 1.0, 
   //      0.0 , 0.0, 0.0, 
@@ -119,12 +119,10 @@ namespace {
 
     glBindBuffer (GL_ELEMENT_ARRAY_BUFFER, index_ibo);
 
-    glEnableVertexAttribArray (0); // optional, first buffer is active by default  // vertex
-    glEnableVertexAttribArray (1); // second buffer is not active by default       // color
-    glEnableVertexAttribArray (2);                                                 // normals
+    glEnableVertexAttribArray (0); // vertex
+    glEnableVertexAttribArray (1); // color
+    glEnableVertexAttribArray (2); // normals
   
-
-    std::cout << "vao! " << vao << std::endl;
     return vao;
 }
 

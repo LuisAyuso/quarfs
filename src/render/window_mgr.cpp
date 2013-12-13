@@ -149,6 +149,7 @@ Camera WindowManager::getCamera(const glm::vec3& pos, const glm::vec3& lookAt, c
 }
 
 void WindowManager::finishFrame(){
+    renderer.endDraw();
     // put the stuff we've been drawing onto the display
     glfwSwapBuffers (window);
 }

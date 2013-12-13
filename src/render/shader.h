@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <GL/glew.h> 
 #include "utils/fileHandler.h"
 
 
@@ -31,3 +32,11 @@ public:
     unsigned getId()const ;
     std::string getName()const ;
 };
+
+
+
+std::string getShaderTypeName (GLenum t);
+bool is_compiled(unsigned shader, GLenum type);
+bool is_valid (unsigned prog) ;
+unsigned linkProgram (unsigned vs, unsigned fs);
+unsigned compileShader(const char* buffer, GLenum type);
