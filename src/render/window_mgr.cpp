@@ -1,7 +1,7 @@
 #include "render/window_mgr.h"
 
 #include <GL/glew.h> // include GLEW and new version of GL on Windows
-#include <GL/glfw3.h> // GLFW helper library
+#include <GLFW/glfw3.h> // GLFW helper library
 
 #include <iostream>
 #include <assert.h>
@@ -29,7 +29,7 @@ namespace {
 
 
     bool mouseDown = false;
-    void mouseCallback(GLFWwindow *w, int b, int a) {
+    void mouseCallback(GLFWwindow *w, int b, int a, int c) {
         mouseDown = a==GLFW_PRESS;
         // save press possition mouse
     }
