@@ -30,43 +30,10 @@ public:
     void keyRight();
     void mouseDiff(float x, float y);
     void update();
-
-private:
-
-    // we make friends, so we can use the insides
-template <typename T>
-friend void shotFrame(const Camera& cam, const T& elem);
 };
 
 
-//
-//template <typename T>
-//void shotFrame(const Camera& cam, const T& elem){
-//    // retrieve possition and update transform matrix
-//    const glm::vec3& pos = elem.getPos();
-//    cam.renderer.applyCorrection (pos);
-//    elem.draw();
-//}
-//
-//
-
-
-//template<>
-//inline void shotFrame(const Camera& cam, const TreeNode& tree) {
-//    struct DrawVisitor : public DrawingVisitor <DrawVisitor, DrawNode>{
-//        const Camera& cam;
-//        DrawVisitor(const Camera& cam) : cam(cam) {}
-//        void visitElem (const DrawNode& elem){
-//            shotFrame(cam, elem);
-//        }
-//    } vis(cam);
-//    vis.traverseTree(tree);
-//}
-
-
-/// instanciated drawwing of the tree
-template<>
-inline void shotFrame(const Camera& cam, const TreeNode& tree) {
+inline void shotFrame(const TreeNode& tree) {
 
     static unsigned numElems = 0;
     static unsigned vao = 0;
@@ -74,14 +41,15 @@ inline void shotFrame(const Camera& cam, const TreeNode& tree) {
     if (!numElems){
         std::vector<glm::vec3> posList;
         std::set<unsigned> vaos;
-        struct DrawVisitor : public DrawingVisitor <DrawVisitor, DrawNode>{
+        struct DrawVisitor : public DrawingVisitor <DrawVisitor>{
             std::vector<glm::vec3>& list;
             std::set<unsigned>& vaos;
             DrawVisitor(std::vector<glm::vec3>& list, std::set<unsigned>& vaos) 
                 : list(list), vaos(vaos) {}
-            void visitElem (const DrawNode& elem){
+            bool visitElem (const DrawNode& elem){
                 list.push_back(elem.getPos());
                 vaos.insert(elem.getVao());
+				return true;
             }
         } vis(posList, vaos);
         vis.traverseTree(tree);

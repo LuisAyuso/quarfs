@@ -3,6 +3,9 @@
 #include <glm/glm.hpp>
 
 struct DrawNode{
+
+	static unsigned getNewCubeVAO();
+
     glm::vec3 pos;
     unsigned int vao;
 

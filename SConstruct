@@ -13,6 +13,7 @@ env=Environment(CPPPATH='src',
 # If you dont do this, the compiled objects will be in the src dirs
 mainSources = ['build/main.cpp',
                'build/world/world.cpp',
+               'build/world/world_cache.cpp',
                'build/world/cube.cpp',
                'build/world/surface.cpp',
                'build/world/noise.cpp',

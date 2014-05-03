@@ -8,6 +8,7 @@
 #include "render/window_mgr.h"
 #include "world/surface.h"
 #include "world/world.h"
+#include "world/world_cache.h"
 
 #include "world/instance.h"
 
@@ -31,6 +32,9 @@ int main () {
     //Surface s;
     //Instance w;
 
+	WorldCache cache(w);
+
+
     ///////////////////////////////////////////////
     // draw loop
     while (!window.isFinish()) {
@@ -45,11 +49,8 @@ int main () {
         cam.update();
 
         // draw!
-        shotFrame(cam, w.getTree());
-    //    shotFrame(cam, s);
-    //
-     //   w.update();
-     //   w.draw();
+        shotFrame(w.getTree());
+	 //   shotFrame(cam, s);
 
         // finish the hole picture
         window.finishFrame();
