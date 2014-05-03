@@ -6,6 +6,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////7
 ///////////////////////////////////////////////////////////////////////////////////////////////7
 ///////////////////////////////////////////////////////////////////////////////////////////////7
+TreeNode::idType TreeNode::idCount = 0;
 
 TreeNode::TreeNode (){
     // needs to be here, but should never be called
@@ -13,8 +14,8 @@ TreeNode::TreeNode (){
 }
 
 
-TreeNode::TreeNode (int x, int y, int w, int h, unsigned level)
-    : x(x), y(y), w(w), h(h), level(level), leaf(true)
+TreeNode::TreeNode (int x, int y, int w, int h)
+    : id(idCount++), x(x), y(y), w(w), h(h), leaf(true), changed(false)
 {}
 
 
@@ -35,10 +36,10 @@ void TreeNode::addElement (const DrawNode& elem){
             leaf = false;
 
             // note this is quadtree, but will change
-            childs.push_back( TreeNode(x      , y      , halfH, halfW, level+1));
-            childs.push_back( TreeNode(x      , y+halfH, halfH, halfW, level+1));
-            childs.push_back( TreeNode(x+halfW, y      , halfH, halfW, level+1));
-            childs.push_back( TreeNode(x+halfW, y+halfH, halfH, halfW, level+1));
+            childs.push_back( TreeNode(x      , y      , halfH, halfW ));
+            childs.push_back( TreeNode(x      , y+halfH, halfH, halfW ));
+            childs.push_back( TreeNode(x+halfW, y      , halfH, halfW ));
+            childs.push_back( TreeNode(x+halfW, y+halfH, halfH, halfW ));
 
             for (const DrawNode& e : elems){
                 distributeElement(e);
@@ -89,10 +90,21 @@ bool TreeNode::isLeaf()const {
     return leaf ;
 }
 
+bool TreeNode::wasUpdated() const{
+	return changed;
+}
+
+void TreeNode::setBaseline(){
+	changed = true;
+	for(auto& c : childs)
+		c.setBaseline();
+}
+
+
 const std::vector<DrawNode> TreeNode::getElements() const{
     return elems;
 };
-std::vector<DrawNode> TreeNode::getElements(){
+std::vector<DrawNode>& TreeNode::getElements(){
     return elems;
 };
 const std::vector<TreeNode> TreeNode::getChildren() const{
@@ -100,7 +112,7 @@ const std::vector<TreeNode> TreeNode::getChildren() const{
 }
 
 std::ostream& operator<<(std::ostream& out, const TreeNode& tn){
-    out << "TN[(" << tn.level << ") " << tn.x << "," << tn.y << ", " << tn.w << "x" << tn.h << "] with: " << tn.elems.size() << (tn.leaf? " LEAF":"");
+    out << "TN[" << tn.x << "," << tn.y << ", " << tn.w << "x" << tn.h << "] with: " << tn.elems.size() << (tn.leaf? " LEAF":"");
     return out;
 }
 
@@ -113,7 +125,7 @@ std::ostream& operator<<(std::ostream& out, const TreeNode& tn){
 ///////////////////////////////////////////////////////////////////////////////////////////////7
 
 World::World()
-        : nodeTree(-1024, -1024, 2048 , 2048, 0)
+        : nodeTree(-1024, -1024, 2048 , 2048 )
 {
 
 //  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 0.0f));

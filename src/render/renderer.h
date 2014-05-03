@@ -10,6 +10,17 @@
 struct DebugQuad;
 struct ShadowCaster;
 
+struct InstancedVao{
+	unsigned vao;
+	unsigned numInstances;
+
+	InstancedVao()
+	:vao(0), numInstances(0) 
+	{}
+};
+typedef std::vector<InstancedVao> VaoList;
+
+
 class Renderer :public InputListener{
 
     // shaders

@@ -11,8 +11,7 @@
 #include <map>
 #include <vector>
 
-typedef std::map<const TreeNode*, unsigned> VaoMap;
-typedef std::vector<unsigned> VaoList;
+typedef std::map<TreeNode::idType, InstancedVao> VaoMap;
 
 /**
  * the mission of the world cache is to avoid updating the buffers in the GPU
@@ -31,7 +30,7 @@ public:
 
 	WorldCache (const World& w)
 	:world(w) { 
-			updateMap(world);
+		updateMap(world);
 	}
 	void updateMap(const World& n);
 	void updateMap(const TreeNode& n);

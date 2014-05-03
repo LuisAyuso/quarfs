@@ -49,11 +49,13 @@ int main () {
         cam.update();
 
         // draw!
-        shotFrame(w.getTree());
-	 //   shotFrame(cam, s);
+      //  shotFrame(w.getTree());
+	 	shotFrame(cache.getWhatToDraw());
 
         // finish the hole picture
         window.finishFrame();
+	
+		std::cout << "====================================" << std::endl;
     }
 
     return 0;
