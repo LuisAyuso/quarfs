@@ -1,5 +1,6 @@
 
-env=Environment(CPPPATH='src',
+
+env=Environment(CPPPATH=['src','..'],
                 CPPDEFINES=[],
                 #CXX='clang++',
                 LIBS=['glfw','GLEW','GL','boost_filesystem','boost_system'],
