@@ -10,6 +10,16 @@
 
 #include <set>
 
+
+/////////////////////////////////////////////////////////////////////////////7
+//
+//  TODO: this thing did not work as expected.
+//  one sigle beautifull call to draw instanced is what we need.
+//  but, to update the positions when the thing moves, maybe we can use
+//  glBufferSubData, and copy the chunk of modified possitions 
+//  in a single possition buffer attached to the VAO
+//
+
 namespace {
 
 		void updateVaoWithPositions (const InstancedVao& ivao, const std::vector<glm::vec3> posList) {
@@ -48,8 +58,6 @@ namespace {
 			std::cout << "updated buffer for vao: " << ivao.vao << " size: " << numElem*sizeof(GLfloat) << std::endl;
 		}
 
-
-
 		struct VAOUpdater : public ConstTreeVisitor <VAOUpdater>{
 
 			std::vector<glm::vec3>& list;
@@ -76,16 +84,11 @@ namespace {
 
 			SectorCollector(unsigned cutLevel,VaoMap& map) 
 			: cutLevel(cutLevel), map(map)
-			{
-				std::cout << "cuting at " << cutLevel << std::endl;
-			}
+			{ }
 
 			bool visitNode (const TreeNode& node ){
 				// here, count the level, see if stop or not
-				std::cout << "visite a node" << std::endl;
 				if(getLevel() < cutLevel) return true; 
-
-				std::cout << "reached cut" << std::endl;
 
 				InstancedVao& elem = map[node.getId()];
 
@@ -93,8 +96,7 @@ namespace {
 				if(node.wasUpdated() || !elem.vao){
 				
 					if (!elem.vao){ // new node!
-						std::cout << "new node found" << std::endl;
-						elem.vao = DrawNode::getNewCubeVAO();
+						elem.vao = getNewCubeVAO();
 					}
 
 					// colect the contained objects
@@ -102,7 +104,7 @@ namespace {
 					VAOUpdater up(positions);
 					up.traverseTree(node);
 					elem.numInstances = positions.size();
-					std::cout << " with: " << positions.size() << " elements" << std::endl;
+					std::cout << "update subtree: " << node.getId() << "  with: " << positions.size() << " elements" << std::endl;
 								  
 					// copy the buffer to GPU
 					updateVaoWithPositions(elem, positions);
@@ -134,10 +136,8 @@ namespace {
 
 void WorldCache::updateMap(const World& w){
 
-		SectorCollector col(1,map);
+		SectorCollector col(cutLevel,map);
 		col.traverseTree(w.getTree());
-
-		std::cout << "cached the world with " << map.size() << " vaos" << std::endl;
 }
 
 
@@ -145,7 +145,7 @@ void WorldCache::updateMap(const TreeNode& n){
 }
 
 VaoList WorldCache::getWhatToDraw(){
-	SectorCollector col(4,map);
+	SectorCollector col(cutLevel,map);
 	return col(world);
 }
 

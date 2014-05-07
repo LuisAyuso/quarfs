@@ -21,6 +21,8 @@ typedef std::map<TreeNode::idType, InstancedVao> VaoMap;
  */
 class WorldCache{
 
+	const unsigned cutLevel = 0;
+
 	// for each of the corresponding areas, we keep a map to store 
 	// the VAO object that need to be drawn;
 	VaoMap map;
@@ -31,6 +33,7 @@ public:
 	WorldCache (const World& w)
 	:world(w) { 
 		updateMap(world);
+		std::cout << " world cached, " << map.size() << " buffers generated" << std::endl;
 	}
 	void updateMap(const World& n);
 	void updateMap(const TreeNode& n);

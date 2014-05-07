@@ -12,8 +12,7 @@ env=Environment(CPPPATH=['src','..'],
 
 # Notice the source files are referred to in the build dir
 # If you dont do this, the compiled objects will be in the src dirs
-mainSources = ['build/main.cpp',
-               'build/world/world.cpp',
+sources = ['build/world/world.cpp',
                'build/world/world_cache.cpp',
                'build/world/cube.cpp',
                'build/world/surface.cpp',
@@ -32,5 +31,23 @@ env.VariantDir(variant_dir = 'build/render', src_dir = 'src/render', duplicate =
 env.VariantDir(variant_dir = 'build/utils', src_dir = 'src/utils', duplicate = 0)
 env.VariantDir(variant_dir = 'build/world', src_dir = 'src/input', duplicate = 0)
 
-env.Program(target = 'quarfs', source = [mainSources])
-# env.Program(target = 'test', source = ['build/test.cpp'])
+
+#######################################################################################
+#	objs
+#######################################################################################
+util = env.Object(sources)
+
+#######################################################################################
+#   main executable 
+#######################################################################################
+
+env.Program(target = 'quarfs', source = ['build/main.cpp', util])
+
+#######################################################################################
+#   tests
+#######################################################################################
+
+env.Program(target = 'ut_world', source = ['build/tests/world_test.cc', util],
+					CPPPATH=	['src','..','../gtest/include'],
+					LINKFLAGS=['../gtest/make/gtest_main.a','-pthread'] )
+

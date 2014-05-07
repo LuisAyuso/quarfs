@@ -4,7 +4,6 @@
 
 struct DrawNode{
 
-	static unsigned getNewCubeVAO();
 
     glm::vec3 pos;
     unsigned int vao;
@@ -22,6 +21,9 @@ struct DrawNode{
     private:
     void initThis();
 };
+
+
+unsigned getNewCubeVAO();
 std::ostream& operator<<(std::ostream& out, const DrawNode& dn);
 
 

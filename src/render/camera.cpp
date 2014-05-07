@@ -123,8 +123,10 @@ void shotFrame(const TreeNode& tree) {
 void shotFrame(const VaoList& list){
 
 	for(const auto& elem : list){
+		if (elem.numInstances > 0){
 			glBindVertexArray (elem.vao);
 			glDrawElementsInstanced(GL_TRIANGLES, 6*6, GL_UNSIGNED_INT, 0, elem.numInstances);
+		}
 	}
 	glBindVertexArray (0);
 }

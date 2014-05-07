@@ -55,7 +55,6 @@ int main () {
         // finish the hole picture
         window.finishFrame();
 	
-		std::cout << "====================================" << std::endl;
     }
 
     return 0;

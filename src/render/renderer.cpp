@@ -109,6 +109,7 @@ Renderer::~Renderer(){
     // clean up renders?
     std::cout << "delete renderer" << std::endl;
     delete debugScreen;
+  //	delete shadowCaster;
 }
 
 void Renderer::init(float w, float h){

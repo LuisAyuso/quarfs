@@ -32,9 +32,9 @@ inline double noise(double x,double y){
 }
 
 double perlin(double x,double y) {
-    int octaves=2;
-    double p = 0.5;
-    double zoom = 1;
+    int octaves=10;
+    double p = .8;
+    double zoom = 2;
     double getnoise =0;
     for(int a=0;a<octaves-1;a++) {
         double frequency = pow(2,a);//This increases the frequency with every loop of the octave.
