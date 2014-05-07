@@ -28,7 +28,7 @@ int main () {
 
     //////////////////////////////////////////////
     // build the world
-    World w;
+    World w = WorldFactory::getSmallWorld();
     //Surface s;
     //Instance w;
 

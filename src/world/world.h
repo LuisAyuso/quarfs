@@ -109,15 +109,16 @@ public:
 };
 
 
+class WorldFactory;
 
 class World{
 
     TreeNode nodeTree;
 	unsigned width, height;
 
-public:
+    World(); // only constructible by factory
 
-    World();
+public:
     ~World();
 
 	unsigned getWidth()  const {return width;}
@@ -125,5 +126,15 @@ public:
 
     bool update();
     const TreeNode& getTree() const { return nodeTree; }
+
+	friend WorldFactory;
+    friend std::ostream& operator<<(std::ostream& out, const World&);
 };
 
+std::ostream& operator<<(std::ostream& out, const World& );
+
+class WorldFactory{
+	public:
+	static World getSmallWorld();
+	static World getEmptyWorld() { return World(); }
+};

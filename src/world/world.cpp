@@ -122,10 +122,6 @@ std::ostream& operator<<(std::ostream& out, const TreeNode& tn){
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
 World::World()
         : nodeTree(-1024, -1024, 2048 , 2048 )
 {
@@ -140,22 +136,6 @@ World::World()
 //  nodeTree.addElement(DrawNode ( 0.0f, 7.0f, 0.0f));
 //  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 7.0f));
 //  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 9.0f));
-
-	width = 0;
-   	height= 0;
-    for (float i =-10; i < 10; ++i){
-		width++;
-        for (float j =-10; j < 10; ++j){
-			height++;
-			int t = 2.0*perlin(i,j);
-        	for (float h=-10; h < t; ++h){
-				nodeTree.addElement(DrawNode(i,h,j));
-			}
-        }
-    }
-    std::cout << " map done " << std::endl;
-
-	std::cout << nodeTree << std::endl;
 }
 
 World::~World(){
@@ -165,3 +145,29 @@ bool World::update(){
     return false;
 }
 
+std::ostream& operator<<(std::ostream& out, const World& w){
+	out << "world with base node-tree: \n\t" << w.nodeTree;
+	return out;
+}
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
+World WorldFactory::getSmallWorld(){
+	World w;
+	w.width = 0;
+   	w.height= 0;
+    for (float i =-10; i < 10; ++i){
+		w.width++;
+        for (float j =-10; j < 10; ++j){
+			w.height++;
+			int t = 2.0*perlin(i,j);
+        	for (float h=-10; h < t; ++h){
+				w.nodeTree.addElement(DrawNode(i,h,j));
+			}
+        }
+    }
+    std::cout << " map done " << std::endl;
+	std::cout << w.nodeTree << std::endl;
+	return w;
+}
