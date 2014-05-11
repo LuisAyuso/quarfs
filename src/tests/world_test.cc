@@ -1,6 +1,6 @@
 
 
-#include "gtest/gtest.h"
+#include "q-tests.h"
 
 #include "render/window_mgr.h"
 #include "world/world.h"

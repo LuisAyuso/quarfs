@@ -54,7 +54,7 @@ Surface::Surface(){
     unsigned numVerts = mapSide*mapSide;
     float halfSize = mapSide/2.0;
 
-    vert_t points[numVerts];
+    std::unique_ptr<vert_t> points (new vert_t[numVerts]);
     assert(sizeof(vert_t) == 3*sizeof(float));
 
     //////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ Surface::Surface(){
     // build cloud of points
     for (unsigned i = 0; i < mapSide; ++i){
         for (unsigned j = 0; j < mapSide; ++j){
-            MAT(points, i,j) = glm::vec3((i-halfSize),  //-mapSide/2)-(step/2.0),
+            MAT(points.get(), i,j) = glm::vec3((i-halfSize),  //-mapSide/2)-(step/2.0),
                                           perlin(i,j),
                                          (j-halfSize));  //-mapSide/2)-(step/2.0),
         }
@@ -86,13 +86,13 @@ Surface::Surface(){
             // push 6 vertex (2 triangles)
             
             // counter clock wise
-            indexVect.push_back(getIndex(points, numVerts, vert_t(i-halfSize,   7.0, j-halfSize  )));
-            indexVect.push_back(getIndex(points, numVerts, vert_t(i-halfSize,   7.0, j+1-halfSize)));
-            indexVect.push_back(getIndex(points, numVerts, vert_t(i+1-halfSize, 7.0, j-halfSize  )));
+            indexVect.push_back(getIndex(points.get(), numVerts, vert_t(i-halfSize,   7.0, j-halfSize  )));
+            indexVect.push_back(getIndex(points.get(), numVerts, vert_t(i-halfSize,   7.0, j+1-halfSize)));
+            indexVect.push_back(getIndex(points.get(), numVerts, vert_t(i+1-halfSize, 7.0, j-halfSize  )));
                                                                                    
-            indexVect.push_back(getIndex(points, numVerts, vert_t(i-halfSize,   7.0, j+1-halfSize)));
-            indexVect.push_back(getIndex(points, numVerts, vert_t(i+1-halfSize, 7.0, j+1-halfSize)));
-            indexVect.push_back(getIndex(points, numVerts, vert_t(i+1-halfSize, 7.0, j-halfSize  )));
+            indexVect.push_back(getIndex(points.get(), numVerts, vert_t(i-halfSize,   7.0, j+1-halfSize)));
+            indexVect.push_back(getIndex(points.get(), numVerts, vert_t(i+1-halfSize, 7.0, j+1-halfSize)));
+            indexVect.push_back(getIndex(points.get(), numVerts, vert_t(i+1-halfSize, 7.0, j-halfSize  )));
 
             // Clock Wise
          // indexVect.push_back(getIndex(points, numVerts, vert_t(i-halfSize,   0.0, j-halfSize  )));
@@ -116,15 +116,15 @@ Surface::Surface(){
 
     //////////////////////////////////////////////////////////////////////////
     //  normals 
-    vert_t normals[numVerts];
-    for( auto& a : normals)
-        a = vert_t(0.0,1.0,0.0);
+    std::unique_ptr<vert_t> normals(new vert_t[numVerts]);
+    for(int i=0; i< numVerts; ++i)
+        normals.get()[i] = vert_t(0.0,1.0,0.0);
 
     //////////////////////////////////////////////////////////////////////////
     //  color 
-    vert_t colors[numVerts];
-    for( auto& a : colors)
-        a = vert_t(159.0/255.0,182.0/255.0,205.0/255.0);
+    std::unique_ptr<vert_t> colors(new vert_t[numVerts]);
+    for(int i=0; i< numVerts; ++i)
+        colors.get()[i] = vert_t(159.0/255.0,182.0/255.0,205.0/255.0);
 
     assert(sizeof (colors) == sizeof(normals));
     assert(sizeof (points) == sizeof(normals));
@@ -148,12 +148,12 @@ Surface::Surface(){
     unsigned int color_vbo = 0;
     glGenBuffers (1, &color_vbo);
     glBindBuffer (GL_ARRAY_BUFFER, color_vbo);
-    glBufferData (GL_ARRAY_BUFFER, sizeof (colors), &colors, GL_STATIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, sizeof (colors), colors.get(), GL_STATIC_DRAW);
 
     unsigned int normals_vbo = 0;
     glGenBuffers (1, &normals_vbo);
     glBindBuffer (GL_ARRAY_BUFFER, normals_vbo);
-    glBufferData (GL_ARRAY_BUFFER, sizeof (normals), &normals, GL_STATIC_DRAW);
+    glBufferData (GL_ARRAY_BUFFER, sizeof (normals), normals.get(), GL_STATIC_DRAW);
 
     unsigned int index_ibo = 0;
     glGenBuffers (1, &index_ibo);

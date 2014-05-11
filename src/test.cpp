@@ -11,8 +11,12 @@
  * line  336: draw call
  */
 
-#include <GL/glew.h> 
-#include <GL/glfw3.h> // GLFW helper library
+#include <GL/glew.h>
+#ifdef __APPLE__
+    #include <GLFW/glfw3.h>
+#elif
+    #include <GL/glfw3.h> // GLFW helper library
+#endif
 
 //glm is used to create perspective and transform matrices
 #include <glm/glm.hpp>
