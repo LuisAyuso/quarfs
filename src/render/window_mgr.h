@@ -8,7 +8,7 @@
 #include "input/listener.h"
 
 // forward declaration
-class GLFWwindow;
+struct GLFWwindow;
 
 
 class WindowManager{

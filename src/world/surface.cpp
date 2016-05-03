@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <array>
+#include <memory>
 #include <GL/glew.h> // include GLEW and new version of GL on Windows
 
 

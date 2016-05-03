@@ -2,7 +2,7 @@
 
 env=Environment(CPPPATH=['src','..'],
                 CPPDEFINES=[],
-                #CXX='clang++',
+                CXX='clang++',
                 LIBS=['glfw','GLEW','GL','boost_filesystem','boost_system'],
                 CCFLAGS = ['-g',
                            '-Wall',
@@ -41,13 +41,5 @@ util = env.Object(sources)
 #   main executable 
 #######################################################################################
 
-env.Program(target = 'quarfs', source = ['build/main.cpp', util])
-
-#######################################################################################
-#   tests
-#######################################################################################
-
-env.Program(target = 'ut_world', source = ['build/tests/world_test.cc', util],
-					CPPPATH=	['src','..','../gtest/include'],
-					LINKFLAGS=['../gtest/make/gtest_main.a','-pthread'] )
+env.Program(target = 'quarfs', source = ['build/main.cxx', util])
 
