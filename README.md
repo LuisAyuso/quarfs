@@ -9,9 +9,8 @@ it uses:
 - GLFW3
 - BOOST (filesystem )
 
-Requires OpenDL 4 compatibility, (not very sure about this, but there are some host code functions which are pretty new and some other thins in the shaders)
+Requires OpenGL 4 compatibility, (not very sure about this, but there are some host code functions which are pretty new and some other thins in the shaders)
 
 It also require some C++11 support by your favourite compiler. 
 
-there is a SConstruc script to build that should work pretty fine.
 
