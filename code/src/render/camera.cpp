@@ -66,24 +66,20 @@ void shotFrame(const TreeNode& tree) {
     if (!numElems){
         std::vector<glm::vec3> posList;
         std::set<unsigned> vaos;
-        struct DrawVisitor : public ConstTreeVisitor <DrawVisitor>{
-            std::vector<glm::vec3>& list;
-            std::set<unsigned>& vaos;
-            DrawVisitor(std::vector<glm::vec3>& list, std::set<unsigned>& vaos) 
-                : list(list), vaos(vaos) {}
-            bool visitElem (const DrawNode& elem){
-                list.push_back(elem.getPos());
-                vaos.insert(elem.getVao());
-				return true;
-            }
-        } vis(posList, vaos);
-        vis.traverseTree(tree);
 
+        visit_depth(tree, [&](const TreeNode& node){
+            for (const DrawNode& elem : node.getElements()){
+                posList.push_back(elem.getPos());
+                vaos.insert(elem.getVao());
+            }
+        });
+
+        std::cout << posList.size() << " objects" << std::endl;
         numElems =  posList.size();
 
-        float positions[numElems*3];
+        float* positions = new float[numElems*3];
         float* index = positions;
-        for(auto e: posList){
+        for(const auto& e: posList){
             index[0] = e.x;
             index[1] = e.y;
             index[2] = e.z;
@@ -104,6 +100,7 @@ void shotFrame(const TreeNode& tree) {
 
         // fill with data
         glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*3*numElems, positions, GL_STATIC_DRAW);
+        delete[] positions;
 
         // set up generic attrib pointers
         glEnableVertexAttribArray(3);
@@ -115,6 +112,8 @@ void shotFrame(const TreeNode& tree) {
 
         glBindBuffer(GL_ARRAY_BUFFER,0);
         assert(glGetError() == GL_NO_ERROR);
+
+
     }
 
     assert(vao);

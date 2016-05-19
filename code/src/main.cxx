@@ -33,7 +33,7 @@ int main () {
     //Surface s;
     //Instance w;
 
-	WorldCache cache(w);
+	//WorldCache cache(w);
 
 
     ///////////////////////////////////////////////
@@ -50,8 +50,7 @@ int main () {
         cam.update();
 
         // draw!
-      //  shotFrame(w.getTree());
-	 	shotFrame(cache.getWhatToDraw());
+        shotFrame(w.getTree());
 
         // finish the hole picture
         window.finishFrame();

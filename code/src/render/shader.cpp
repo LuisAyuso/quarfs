@@ -70,18 +70,29 @@ namespace quarfs {
 Shader::Shader(const std::string& shader_path, const std::string& name)
 :name(name){
 
-    unsigned vs(0), fs(0);
+    unsigned vs(0), fs(0), gs(0);
     if (name == "default" || name.empty()){
         vs = compileShader (vertex_shader, GL_VERTEX_SHADER);
         fs = compileShader (fragment_shader, GL_FRAGMENT_SHADER);
         id = linkProgram(vs, fs); 
     }
     else {
+        // find and compile geometry shader
+        fs::path gsFile = shader_path + "/" + name+".geom.glsl";
+        if (!fs::exists(gsFile)){
+            std::cerr << "no geometry shader" << std::endl;
+        }
+        else{
+            const char* buff = loadShader(gsFile);
+            gs = compileShader(buff, GL_GEOMETRY_SHADER);
+            assert(is_compiled(vs,GL_GEOMETRY_SHADER));
+            delete[] buff;
+        }
 
         // find and compile vertex shader
-        fs::path veFile = shader_path + "/" + name+".vs.glsl";
-        assert (fs::exists(veFile) && "no fragments shader");
-        const char* buff = loadShader(veFile);
+        fs::path vsFile = shader_path + "/" + name+".vs.glsl";
+        assert (fs::exists(vsFile) && "no fragments shader");
+        const char* buff = loadShader(vsFile);
         vs = compileShader(buff, GL_VERTEX_SHADER);
         assert(is_compiled(vs,GL_VERTEX_SHADER));
         delete[] buff;
@@ -95,12 +106,14 @@ Shader::Shader(const std::string& shader_path, const std::string& name)
         delete[] buff;
         
         // create program
-        id = linkProgram(vs, fs); 
+        id = linkProgram(vs, fs, gs); 
         assert(is_valid(id));
 
         // register files to update modifications
         FileHandler::getInstance().registerHandle(fraFile.string(), this);
-        FileHandler::getInstance().registerHandle(veFile.string(), this);
+        FileHandler::getInstance().registerHandle(vsFile.string(), this);
+        if (gs) FileHandler::getInstance().registerHandle(gsFile.string(), this);
+    
     }
 
     int shnum;
@@ -241,16 +254,6 @@ bool is_valid (unsigned prog) {
         return false;
     }
     return true;
-}
-
-unsigned linkProgram (unsigned vs, unsigned fs){
-
-    // link program
-    unsigned id = glCreateProgram ();
-    if (vs) glAttachShader (id, fs);
-    if (fs) glAttachShader (id, vs);
-    glLinkProgram (id);
-    return id;
 }
 
 unsigned compileShader(const char* buffer, GLenum type){

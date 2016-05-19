@@ -62,18 +62,19 @@ namespace {
 			std::cout << "updated buffer for vao: " << ivao.vao << " size: " << numElem*sizeof(GLfloat) << std::endl;
 		}
 
-		struct VAOUpdater : public ConstTreeVisitor <VAOUpdater>{
-
-			std::vector<glm::vec3>& list;
-
-			VAOUpdater(std::vector<glm::vec3>& list) 
-				: list(list){}
-
-			bool visitElem (const DrawNode& elem){
-				list.push_back(elem.getPos());
-				return true;
-			}
-		};
+//
+//		struct VAOUpdater : public ConstTreeVisitor <VAOUpdater>{
+//
+//			std::vector<glm::vec3>& list;
+//
+//			VAOUpdater(std::vector<glm::vec3>& list) 
+//				: list(list){}
+//
+//			bool visitElem (const DrawNode& elem){
+//				list.push_back(elem.getPos());
+//				return true;
+//			}
+//		};
 		
 		/**
 		 * this visitor structure will traverse the tree spliting
@@ -81,61 +82,61 @@ namespace {
 		 * will spawn a N childs and beyond this number a VAO
 		 * will be generated.
 		 */
-		struct SectorCollector : public LevelTreeVisitor <SectorCollector>{
-
-			unsigned cutLevel;
-			VaoMap& map;
-
-			SectorCollector(unsigned cutLevel,VaoMap& map) 
-			: cutLevel(cutLevel), map(map)
-			{ }
-
-			bool visitNode (const TreeNode& node ){
-				// here, count the level, see if stop or not
-				if(getLevel() < cutLevel) return true; 
-
-				InstancedVao& elem = map[node.getId()];
-
-				// if did changed
-				if(node.wasUpdated() || !elem.vao){
-				
-					if (!elem.vao){ // new node!
-						elem.vao = getNewCubeVAO();
-					}
-
-					// colect the contained objects
-					std::vector<glm::vec3> positions;
-					VAOUpdater up(positions);
-					up.traverseTree(node);
-					elem.numInstances = positions.size();
-					std::cout << "update subtree: " << node.getId() << "  with: " << positions.size() << " elements" << std::endl;
-								  
-					// copy the buffer to GPU
-					updateVaoWithPositions(elem, positions);
-				}
-				return false;
-			}
-			void visitElem (const DrawNode& node ){}
-					
-			std::vector<InstancedVao> operator()(const World& w){
-				
-				// traverse
-				traverseTree(w.getTree());
-	
-				// compute the list
-				VaoList res;
-				for (auto& fit : map){
-					// if updated, recompute
-					res.push_back(fit.second);
-				}
-				return res;
-			}
-		};
-
-		unsigned updateTreeDao(const DrawNode& node){
-			return 0;
-		}
-
+//		struct SectorCollector : public LevelTreeVisitor <SectorCollector>{
+//
+//			unsigned cutLevel;
+//			VaoMap& map;
+//
+//			SectorCollector(unsigned cutLevel,VaoMap& map) 
+//			: cutLevel(cutLevel), map(map)
+//			{ }
+//
+//			bool visitNode (const TreeNode& node ){
+//				// here, count the level, see if stop or not
+//				if(getLevel() < cutLevel) return true; 
+//
+//				InstancedVao& elem = map[node.getId()];
+//
+//				// if did changed
+//				if(node.wasUpdated() || !elem.vao){
+//				
+//					if (!elem.vao){ // new node!
+//						elem.vao = getNewCubeVAO();
+//					}
+//
+//					// colect the contained objects
+//					std::vector<glm::vec3> positions;
+//					VAOUpdater up(positions);
+//					up.traverseTree(node);
+//					elem.numInstances = positions.size();
+//					std::cout << "update subtree: " << node.getId() << "  with: " << positions.size() << " elements" << std::endl;
+//								  
+//					// copy the buffer to GPU
+//					updateVaoWithPositions(elem, positions);
+//				}
+//				return false;
+//			}
+//			void visitElem (const DrawNode& node ){}
+//					
+//			std::vector<InstancedVao> operator()(const World& w){
+//				
+//				// traverse
+//				traverseTree(w.getTree());
+//	
+//				// compute the list
+//				VaoList res;
+//				for (auto& fit : map){
+//					// if updated, recompute
+//					res.push_back(fit.second);
+//				}
+//				return res;
+//			}
+//		};
+//
+//		unsigned updateTreeDao(const DrawNode& node){
+//			return 0;
+//		}
+//
 }  // anon namespace
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -146,8 +147,7 @@ namespace quarfs {
 
 void WorldCache::updateMap(const World& w){
 
-		SectorCollector col(cutLevel,map);
-		col.traverseTree(w.getTree());
+assert(false);
 }
 
 
@@ -155,8 +155,7 @@ void WorldCache::updateMap(const TreeNode& n){
 }
 
 VaoList WorldCache::getWhatToDraw(){
-	SectorCollector col(cutLevel,map);
-	return col(world);
+assert(false);
 }
 
 } //nameaspace quarfs {

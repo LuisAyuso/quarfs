@@ -130,9 +130,9 @@ void Renderer::init(float w, float h){
     }
 
     shader_programs.push_back(std::shared_ptr<Shader>(new Shader(p.string(), "lights")));
-  //  shader_programs.push_back(std::shared_ptr<Shader>(new Shader("color")));
-  //  shader_programs.push_back(std::shared_ptr<Shader>(new Shader("normals")));
-  //  shader_programs.push_back(std::shared_ptr<Shader>(new Shader("normals2")));
+    shader_programs.push_back(std::shared_ptr<Shader>(new Shader(p.string(), "color")));
+    shader_programs.push_back(std::shared_ptr<Shader>(new Shader(p.string(), "normals")));
+    shader_programs.push_back(std::shared_ptr<Shader>(new Shader(p.string(), "normals2")));
     assert(allAllright());
     configureRender(w, h);
     assert(allAllright());

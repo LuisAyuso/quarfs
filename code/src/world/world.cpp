@@ -125,7 +125,7 @@ std::ostream& operator<<(std::ostream& out, const TreeNode& tn){
 //////////////////////////////////////////////////////////////////////////////
 
 World::World()
-        : nodeTree(-1024, -1024, 2048 , 2048 )
+        : nodeTree(-2048, -2048, 4096 , 4096 )
 {
 
 //  nodeTree.addElement(DrawNode ( 0.0f, 0.0f, 0.0f));
@@ -159,17 +159,14 @@ World WorldFactory::getSmallWorld(){
 	World w;
 	w.width = 0;
    	w.height= 0;
-    for (float i =-10; i < 10; ++i){
+    for (float i =0; i < 2000; ++i){
 		w.width++;
-        for (float j =-10; j < 10; ++j){
+        for (float j =0; j < 2000; ++j){
 			w.height++;
-			int t = 2.0*perlin(i,j);
-        	for (float h=-10; h < t; ++h){
-				w.nodeTree.addElement(DrawNode(i,h,j));
-			}
+		    w.nodeTree.addElement(DrawNode(i,0,j));
         }
     }
-    std::cout << " map done " << std::endl;
+    std::cout << " map done: " << w.nodeTree.getElements().size() << std::endl;
 	std::cout << w.nodeTree << std::endl;
 	return w;
 }
