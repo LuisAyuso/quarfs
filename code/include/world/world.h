@@ -49,66 +49,19 @@ public:
 std::ostream& operator<<(std::ostream& out, const TreeNode& tn);
 
 
-template <typename BASE> 
-struct ConstTreeVisitor {
-    void traverseTree(const TreeNode& node ){
-        if (node.isLeaf()){
-            for(const auto& e : node.getElements()){
-                static_cast<BASE*>(this)->visitElem(e);
-			}
-        }
-        else{
-            for(const auto& n : node.getChildren()){
-			   	traverseTree(n);
-			}
-        }
-    }
-};
+template <typename F, typename ... ARGS>
+void visit_depth(const TreeNode& node, F&& f, ARGS&&... args){
+    f(node, std::forward<ARGS>(args)...);
+    for (const auto& child : node.getChildren())
+        visit_depth(child, std::forward<F>(f));
+}
 
-template <typename BASE> 
-struct PrunableTreeVisitor {
-    bool traverseTree(const TreeNode& node ){
-        if (node.isLeaf()){
-            for(const auto& e : node.getElements()){
-                if (!static_cast<BASE*>(this)->visitElem(e)) return false;
-			}
-        }
-        else{
-            for(const auto& n : node.getChildren()){
-                if (!traverseTree(n)) return false;
-			}
-        }
-		return true;
-    }
-};
-
-template <typename BASE, bool VisitLeaves = false> 
-class LevelTreeVisitor {
-private:
-	unsigned level;
-
-public:
-	LevelTreeVisitor()
-	:level(0) {}
-
-   void traverseTree(const TreeNode& node ){
-	   if (static_cast<BASE*>(this)->visitNode(node)){
-			level++;
-	   		if (VisitLeaves && node.isLeaf()){
-	   			for(const auto& e : node.getElements()){
-	   				static_cast<BASE*>(this)->visitElem(e);
-	   			}
-	   		}
-	   		else{
-	   			for(const auto& n : node.getChildren()){
-	   				traverseTree(n);
-	   			}
-	   		}
-	   }
-   }
-   unsigned getLevel()const {return level;}
-};
-
+template <typename F, typename ... ARGS>
+void visit_depth(TreeNode& node, F&& f, ARGS&&... args){
+    f(node, std::forward<ARGS>(args)...);
+    for (auto& child : node.getChildren())
+        visit_depth(child, std::forward<F>(f));
+}
 
 class WorldFactory;
 
