@@ -28,6 +28,10 @@ flags = [
     'c++',
     '-I',
     './include',
+    '-I',
+    '../build/gmock/src/gmock/include',
+    '-I',
+    '../build/gtest/src/gtest/include',
 ]
 systemIncludes = LoadSystemIncludes();
 flags = flags + systemIncludes;
