@@ -40,12 +40,20 @@ foreach( test_source ${test_sources} )
 
     get_filename_component (unit_test ${test_source} NAME_WE )
 
-    include_directories( ${GTEST_INCLUDE_DIR} )
-    include_directories( ${GMOCK_INCLUDE_DIR} )
-    add_definitions(-DGTEST_COLOR ) 
-    add_executable (${unit_test} ${test_source})
+    INCLUDE_DIRECTORIES( ${GTEST_INCLUDE_DIR} )
+    INCLUDE_DIRECTORIES( ${GMOCK_INCLUDE_DIR} )
 
-    target_link_libraries(${unit_test} libgtest libgtest_main libgmock)
+
+    ADD_DEFINITIONS(-DGTEST_COLOR ) 
+    ADD_EXECUTABLE (${unit_test} ${test_source})
+
+    TARGET_LINK_LIBRARIES( ${unit_test} libgtest libgtest_main libgmock)
+    TARGET_LINK_LIBRARIES( ${unit_test} ${Boost_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( ${unit_test} ${GLEW_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( ${unit_test} ${OPENGL_LIBRARIES} )
+    TARGET_LINK_LIBRARIES( ${unit_test} ${GLFW_LIBRARIES} )
+
+
 
     add_test (${unit_test} ${unit_test} )
 
