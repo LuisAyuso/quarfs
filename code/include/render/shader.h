@@ -19,7 +19,7 @@ public:
      * constructs a shader object, loads the data from a file
      * compiles and validates
      */
-    Shader(const std::string& name);
+    Shader(const std::string& path, const std::string& name);
 
     Shader(const Shader&) = delete;
     Shader(Shader&&) = delete;

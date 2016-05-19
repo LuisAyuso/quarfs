@@ -5,9 +5,8 @@
 #include <iostream>
 #include <fstream>
 #include <GL/glew.h> 
-#include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
-
+#include <boost/filesystem.hpp>
 #include <cassert>
 
 namespace fs = boost::filesystem;
@@ -68,7 +67,7 @@ namespace {
 ///////////////////////////////////////////////////////////////////////////////////////
 namespace quarfs {
 
-Shader::Shader(const std::string& name)
+Shader::Shader(const std::string& shader_path, const std::string& name)
 :name(name){
 
     unsigned vs(0), fs(0);
@@ -78,11 +77,9 @@ Shader::Shader(const std::string& name)
         id = linkProgram(vs, fs); 
     }
     else {
-        fs::path p("./shaders");
-        assert (fs::exists(p) && fs::is_directory(p));
 
         // find and compile vertex shader
-        fs::path veFile = "./shaders/"+name+".vs.glsl";
+        fs::path veFile = shader_path + "/" + name+".vs.glsl";
         assert (fs::exists(veFile) && "no fragments shader");
         const char* buff = loadShader(veFile);
         vs = compileShader(buff, GL_VERTEX_SHADER);
@@ -90,7 +87,7 @@ Shader::Shader(const std::string& name)
         delete[] buff;
 
         // find and compile fragment shader
-        fs::path fraFile = "./shaders/"+name+".fs.glsl";
+        fs::path fraFile = shader_path + "/" + name+".fs.glsl";
         assert (fs::exists(fraFile) && "no fragments shader");
         buff = loadShader(fraFile);
         fs = compileShader(buff, GL_FRAGMENT_SHADER);

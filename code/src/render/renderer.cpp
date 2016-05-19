@@ -13,6 +13,8 @@
 #include "render/utils.h"
 #include "render/shader.h"
 
+#include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
 
 namespace{
     char debugvs[] = 
@@ -29,7 +31,6 @@ namespace{
   //      "uniform sampler2D depth_tex;"
         "out vec4 frag_colour;"
         "void main () {"
-        //"   frag_colour = texture (depth_tex, st);"
         "   frag_colour = vec4 (0.0, 0.0, 0.0, 1.0);"
         "}";
 }
@@ -117,7 +118,18 @@ Renderer::~Renderer(){
 
 void Renderer::init(float w, float h){
     currentCount = 0;
-    shader_programs.push_back(std::shared_ptr<Shader>(new Shader("lights")));
+
+    fs::path p("./shaders");
+    if (!fs::exists(p) || !fs::is_directory(p)){
+        std::cerr << "search shaders one level up: " << fs::absolute( p) <<  std::endl;
+        p = fs::path ("../shaders");
+    }
+    if (!fs::exists(p) || !fs::is_directory(p)){
+        std::cerr << "no shader folder found" << fs::absolute( p) <<  std::endl;
+        abort ();
+    }
+
+    shader_programs.push_back(std::shared_ptr<Shader>(new Shader(p.string(), "lights")));
   //  shader_programs.push_back(std::shared_ptr<Shader>(new Shader("color")));
   //  shader_programs.push_back(std::shared_ptr<Shader>(new Shader("normals")));
   //  shader_programs.push_back(std::shared_ptr<Shader>(new Shader("normals2")));
