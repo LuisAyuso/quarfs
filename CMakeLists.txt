@@ -21,14 +21,22 @@ include_directories ( "code/include" )
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 
+
 file(GLOB_RECURSE sources "${CMAKE_CURRENT_SOURCE_DIR}/code/src/*.cpp" )
-add_executable(${PROJECT_NAME} ${sources}  code/src/main.cxx)
 
+set(EXECUTABLE_NAME ${PROJECT_NAME})
+set(LIBRARY_NAME    libquarfs)
 
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${Boost_LIBRARIES} )
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${GLEW_LIBRARIES} )
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${OPENGL_LIBRARIES} )
-TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${GLFW_LIBRARIES} )
+add_library(${LIBRARY_NAME} ${sources})
+
+TARGET_LINK_LIBRARIES( ${LIBRARY_NAME} ${Boost_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ${LIBRARY_NAME} ${GLEW_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ${LIBRARY_NAME} ${OPENGL_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ${LIBRARY_NAME} ${GLFW_LIBRARIES} )
+
+add_executable(${PROJECT_NAME}  code/src/main.cxx)
+
+TARGET_LINK_LIBRARIES( ${PROJECT_NAME} ${LIBRARY_NAME} )
 
 
 # tests:
@@ -50,12 +58,7 @@ foreach( test_source ${test_sources} )
     ADD_EXECUTABLE (${unit_test} ${test_source})
 
     TARGET_LINK_LIBRARIES( ${unit_test} libgtest libgtest_main libgmock)
-    TARGET_LINK_LIBRARIES( ${unit_test} ${Boost_LIBRARIES} )
-    TARGET_LINK_LIBRARIES( ${unit_test} ${GLEW_LIBRARIES} )
-    TARGET_LINK_LIBRARIES( ${unit_test} ${OPENGL_LIBRARIES} )
-    TARGET_LINK_LIBRARIES( ${unit_test} ${GLFW_LIBRARIES} )
-
-
+    TARGET_LINK_LIBRARIES( ${unit_test} ${LIBRARY_NAME})
 
     add_test (${unit_test} ${unit_test} )
 
